@@ -53,8 +53,7 @@ public class GearTypesServiceBean {
         List<GearType> gearTypes = response.getGearList().getGear();
         List<FishingGear> fishingGears = new ArrayList<>();
         if(gearTypes.size()>0) {
-            //TODO: Remove subList
-            for(GearType gearType : gearTypes.subList(0, 10) ){
+            for(GearType gearType : gearTypes){
                 fishingGears.add(mapToFishingGear(gearType));
             }
         }

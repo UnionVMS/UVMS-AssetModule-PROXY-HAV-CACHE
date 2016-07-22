@@ -79,8 +79,7 @@ public class VesselServiceBean {
 
     public void sendVesselAndOwnerInfoToAssetModule(List<Vessel> vesselList)  {
         List<Asset> upsertAssets = new ArrayList<>();
-        //TODO: Remove subList
-        for (Vessel vessel : vesselList.subList(10,20)) {
+        for (Vessel vessel : vesselList) {
             long start = System.currentTimeMillis();
             GetVesselAndOwnerListByIdResponse vesselAndOwnerListById;
             try {

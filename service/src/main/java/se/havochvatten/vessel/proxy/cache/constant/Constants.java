@@ -14,16 +14,9 @@ package se.havochvatten.vessel.proxy.cache.constant;
 public class Constants {
 
     public static final String PROXY_QUEUE = "java:/jms/queue/UVMSAssetCache";
-    public static final String PROXY_QUEUE_NAME = "UVMSAssetCache";
-    public static final String CONNECTION_TYPE = "javax.jms.MessageListener";
-    public static final String DESTINATION_TYPE_QUEUE = "javax.jms.Queue";
-
     public static final String CONNECTION_FACTORY = "java:/ConnectionFactory";
-
     public static final String FIND_BY_NAME = "Parameter.findByName";
-
     public static final String ASSET_MODULE_QUEUE = "java:/jms/queue/UVMSAssetEvent";
-
     public static final String NATIONAL = "NATIONAL";
 
 }

@@ -25,11 +25,8 @@ import se.havochvatten.vessel.proxy.cache.exception.ProxyException;
 import se.havochvatten.vessel.proxy.cache.message.ProxyMessageSender;
 
 import javax.annotation.Resource;
-import javax.ejb.EJB;
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
+import javax.ejb.*;
 import javax.jms.Queue;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -37,8 +34,13 @@ import java.util.List;
 @Stateless
 public class GearTypesServiceBean {
 
+    private static final Logger LOG = LoggerFactory.getLogger(GearTypesServiceBean.class);
+
     @Resource(mappedName = Constants.ASSET_MODULE_QUEUE)
     private Queue assetModuleQueue;
+
+    @Resource(mappedName = Constants.PROXY_QUEUE)
+    private Queue responseModuleQueue;
 
     @EJB
     private ClientProxy clientProxyBean;
@@ -46,27 +48,37 @@ public class GearTypesServiceBean {
     @EJB
     private ProxyMessageSender proxyMessageSender;
 
-    private static final Logger LOG = LoggerFactory.getLogger(GearTypesServiceBean.class);
 
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void updateGearTypes(){
         GetGearsResponse response= clientProxyBean.getGearTypeList();
         List<GearType> gearTypes = response.getGearList().getGear();
-        List<FishingGear> fishingGears = new ArrayList<>();
         if(gearTypes.size()>0) {
+            LOG.debug("#######  Gear types size: " + gearTypes.size());
             for(GearType gearType : gearTypes){
-                fishingGears.add(mapToFishingGear(gearType));
+                FishingGear fishingGear = mapToFishingGear(gearType);
+                LOG.debug("Send gear type: " +gearType.getId());
+                sendFishingGearUpdateToAssetModule(fishingGear);
             }
         }
+    }
+
+
+    private void sendFishingGearUpdateToAssetModule(FishingGear fishingGear) {
         try {
-            String upsertFishingGearListRequest = AssetModuleRequestMapper.createUpsertFishingGearListRequest(fishingGears, "UVMS Vessel Cache");
-            proxyMessageSender.sendMessage(assetModuleQueue, upsertFishingGearListRequest, null);
+            String upsertFishingGearListRequest = AssetModuleRequestMapper.createUpsertFishingGearModuleRequest(fishingGear, "UVMS Vessel Cache");
+            String s = proxyMessageSender.sendMessage(assetModuleQueue, responseModuleQueue, upsertFishingGearListRequest);Thread.sleep(1000L);
         } catch (AssetModelMarshallException e) {
                 LOG.error("Could not marshalle the request upsertFishingGearListRequest");
         } catch (ProxyException e) {
             LOG.error("Cannot send reqest to Asset module, queue: " + Constants.ASSET_MODULE_QUEUE);
+        } catch (InterruptedException e) {
+            LOG.error("Could not set the thread to sleep in 10 seconds");
+        }catch (Exception exception){
+            LOG.error("An unexpected exception occurred");
         }
-
     }
+
 
     private FishingGear mapToFishingGear(GearType gearType) {
         FishingGear fishingGear = new FishingGear();

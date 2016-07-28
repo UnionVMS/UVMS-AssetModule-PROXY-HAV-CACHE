@@ -75,7 +75,7 @@ public class ProxyMessageSender {
      * @return The JMSMessage id of the sent message
      * @throws se.havochvatten.vessel.proxy.cache.exception.ProxyException
      */
-    protected String sendMessage(Destination toQueue, Destination replyQueue, String textMessage) throws ProxyException {
+    public String sendMessage(Destination toQueue, Destination replyQueue, String textMessage) throws ProxyException {
         return sendMessage(toQueue, replyQueue, textMessage, null, null, null, null);
     }
 
@@ -94,40 +94,50 @@ public class ProxyMessageSender {
      * @param defaultPriority The priority for this message
      * @param timetoLive The message's lifetime (in milliseconds)
      * @return The JMSMessage id of the sent message
-     * @throws MovementMessageException
+     * @throws ProxyException
      */
     private String sendMessage(Destination toQueue, Destination replyQueue, String textMessage, String correlationId, Integer deliveryMode, Integer defaultPriority, Long timetoLive) throws ProxyException {
-        
+
+        Connection connection = null;
+        Session session = null;
         try {
             
             LOG.info("[ Sending message to recipient on queue ] {}", toQueue);
             
-            Connection connection = createConnection();
-            Session session = getSession(connection);
+            connection = createConnection();
+            session = getSession(connection);
             
             TextMessage message = session.createTextMessage();
             message.setText(textMessage);
             message.setJMSReplyTo(replyQueue);
             message.setJMSDestination(toQueue);
             message.setJMSCorrelationID(correlationId);
+            message.setJMSDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
             if (deliveryMode != null && defaultPriority != null && timetoLive != null) {
                 session.createProducer(toQueue).send(message, deliveryMode, defaultPriority, timetoLive);
             } else {
                 session.createProducer(toQueue).send(message);
             }
-            
-            session.close();
-            
-            if (connection != null) {
-                connection.stop();
-                connection.close();
-            }
-            
+
             return message.getJMSMessageID();
         } catch (JMSException ex) {
-            LOG.error("Error when sending message or closing JMS queue", ex);
-            throw new ProxyException("Error when sending message or closing JMS queue");
+            LOG.error("Error when sending message JMS queue", ex);
+            throw new ProxyException("Error when sending message JMS queue");
+        }finally {
+            try {
+                if(session !=null){
+                    session.close();
+                }
+                if (connection != null) {
+                    connection.stop();
+                    connection.close();
+                }
+            } catch (JMSException e) {
+                LOG.error("Error when closing JMS queue", e);
+                throw new ProxyException("Error when closing JMS queue");
+            }
+
         }
     }
 

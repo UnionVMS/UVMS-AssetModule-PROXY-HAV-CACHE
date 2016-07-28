@@ -19,7 +19,6 @@ import se.havochvatten.service.client.vesselcompws.v2_0.orgpers.RolePersonType;
 import se.havochvatten.service.client.vesselcompws.v2_0.vessel.OwnerType;
 import se.havochvatten.service.client.vesselcompws.v2_0.vessel.Vessel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ResponseMapper {
@@ -59,7 +58,9 @@ public class ResponseMapper {
         asset.setIrcs(vessel.getIrcs());
         asset.setHasIrcs(vessel.getIrcs() !=null ? "Y" : "N");
         asset.setSource(CarrierSource.NATIONAL);
-        //asset.setGearType(vessel.get);
+        asset.setGrossTonnage(vessel.getEuTon());
+        asset.setLengthOverAll(vessel.getLoa());
+        asset.setPowerMain(vessel.getEnginePower());
         //asset.setHasLicense(vessel.getOwner().getAuthorizationAndLicenses().isEmpty() ? false : true);
         //asset.setMmsiNo(vessel.get);
         //asset.setLengthBetweenPerpendiculars();
@@ -83,14 +84,4 @@ public class ResponseMapper {
         assetContact.setNumber(organisationType.getPhone1()!=null ? organisationType.getPhone1().getTelephoneNumber() : null);
         asset.setContact(assetContact);
     }
-
-    public static ListAssetResponse mapToListAssetResponse(ArrayList<Asset> assets){
-        ListAssetResponse listAssetResponse = new ListAssetResponse();
-        listAssetResponse.getAsset().addAll(assets);
-        return listAssetResponse;
-    }
-
-
-
-    
 }

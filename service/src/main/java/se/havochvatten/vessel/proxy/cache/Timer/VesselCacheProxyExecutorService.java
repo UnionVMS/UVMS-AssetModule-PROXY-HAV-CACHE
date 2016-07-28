@@ -18,6 +18,7 @@ import se.havochvatten.vessel.proxy.cache.bean.GearTypesServiceBean;
 import se.havochvatten.vessel.proxy.cache.bean.VesselServiceBean;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
@@ -45,11 +46,17 @@ public class VesselCacheProxyExecutorService {
     public void init(){
         LOG.debug("VesselCacheProxyExecutorService init!!!");
         VesselServiceTask vesselServiceTask = new VesselServiceTask(vesselServiceBean);
-
         GearTypesServiceTask gearTypesServiceTask = new GearTypesServiceTask(gearTypesServiceBean);
+
         executorService.scheduleWithFixedDelay(vesselServiceTask, 30, 1440, TimeUnit.MINUTES);
         executorService.scheduleWithFixedDelay(gearTypesServiceTask, 5, 1440, TimeUnit.MINUTES);
+    }
 
+    @PreDestroy
+    public void destroy(){
+        if(!executorService.isShutdown()){
+            executorService.shutdownNow();
+        }
     }
 
 }

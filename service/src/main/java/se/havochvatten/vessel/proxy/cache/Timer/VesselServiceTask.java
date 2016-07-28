@@ -32,8 +32,7 @@ public class VesselServiceTask implements Runnable{
 
     @Override
     public void run() {
-
-        LOG.debug(" VesselServiceTask run");
+        LOG.debug(" VesselServiceTask run!");
         try {
             long start = System.currentTimeMillis();
             List<String> nations = vesselServiceBean.getNationsFromDatabase();

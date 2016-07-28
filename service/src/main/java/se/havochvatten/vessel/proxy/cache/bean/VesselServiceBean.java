@@ -35,9 +35,7 @@ import se.havochvatten.vessel.proxy.cache.mapper.ResponseMapper;
 import se.havochvatten.vessel.proxy.cache.message.ProxyMessageSender;
 
 import javax.annotation.Resource;
-import javax.ejb.EJB;
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
+import javax.ejb.*;
 import javax.inject.Inject;
 import javax.jms.Queue;
 import java.math.BigInteger;
@@ -54,6 +52,9 @@ public class VesselServiceBean {
 
     @Resource(mappedName = Constants.ASSET_MODULE_QUEUE)
     private Queue assetModuleQueue;
+
+    @Resource(mappedName = Constants.PROXY_QUEUE)
+    private Queue responseModuleQueue;
 
     @EJB
     ClientProxy client;
@@ -77,8 +78,8 @@ public class VesselServiceBean {
         return vessels;
     }
 
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void sendVesselAndOwnerInfoToAssetModule(List<Vessel> vesselList)  {
-        List<Asset> upsertAssets = new ArrayList<>();
         for (Vessel vessel : vesselList) {
             long start = System.currentTimeMillis();
             GetVesselAndOwnerListByIdResponse vesselAndOwnerListById;
@@ -90,7 +91,7 @@ public class VesselServiceBean {
                 setGearTypeInformation(asset, gearType);
                 //TODO: Remove when we know how to get this gear type
                 asset.setGearType("PELAGIC");
-                upsertAssets.add(asset);
+                sendUpsertAssetModuleRequest(asset);
                 long totalTime = System.currentTimeMillis() - start;
                 LOG.debug("Vessel id: " +vesselAndOwnerListById.getVessel().getVesselId() + " Owner: " +vesselAndOwnerListById.getOwner().size() +" Total time in ms: "  + totalTime);
             } catch (ProxyException e) {
@@ -99,7 +100,6 @@ public class VesselServiceBean {
                 LOG.error(e.getMessage());
             }
         }
-        sendUpsertAssetModuleRequest(upsertAssets);
     }
 
     private void setGearTypeInformation(Asset asset, GetGearChangeNotificationListByVesselIRCSResponse gearType) {
@@ -116,23 +116,24 @@ public class VesselServiceBean {
         GetGearByIdResponse gearTypeByCode;
         if(id == null){
             LOG.error("Gear type id cannot be null");
-        }
-        try {
-            gearTypeByCode = client.getGearTypeByCode(BigInteger.valueOf(id));
-            if(gearTypeByCode!=null){
-                gearTypeInfo = gearTypeByCode.getGear().getId() + " " +  gearTypeByCode.getGear().getNameEng();
+        }else {
+            try {
+                gearTypeByCode = client.getGearTypeByCode(BigInteger.valueOf(id));
+                if (gearTypeByCode != null) {
+                    gearTypeInfo = gearTypeByCode.getGear().getId() + " " + gearTypeByCode.getGear().getNameEng();
+                }
+            } catch (ProxyException e) {
+                LOG.error("Could not set gear type");
             }
-        } catch (ProxyException e) {
-            LOG.error("Could not set gear type");
         }
         return gearTypeInfo;
     }
 
 
-    private void sendUpsertAssetModuleRequest(List<Asset> assets){
+    private void sendUpsertAssetModuleRequest(Asset asset){
         try {
-            String upsertAssetModuleRequest = AssetModuleRequestMapper.createUpsertAssetListModuleRequest(assets, Constants.NATIONAL);
-            proxyMessageSender.sendMessage(assetModuleQueue, upsertAssetModuleRequest, null);
+            String upsertAssetModuleRequest = AssetModuleRequestMapper.createUpsertAssetModuleRequest(asset, Constants.NATIONAL);
+            String s = proxyMessageSender.sendMessage(assetModuleQueue, responseModuleQueue, upsertAssetModuleRequest);
         } catch (AssetModelMarshallException e) {
             LOG.error("Could not map asset to createUpsertAssetModuleRequest", e.getMessage());
         }catch (ProxyException e) {

@@ -2,3 +2,4 @@ target
 logging.properties
 *.iml
 .idea/
+hav-vessel-proxy-cache.properties

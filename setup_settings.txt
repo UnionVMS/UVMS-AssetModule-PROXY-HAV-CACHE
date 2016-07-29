@@ -1,0 +1,9 @@
+## Follwoing scheduled executor service and database source must add to your standalone-full.xml file 
+
+<managed-scheduled-executor-service name="UvmsVesselCacheProxyExecutorService" jndi-name="java:/UvmsVesselCacheProxyExecutorService" hung-task-threshold="50000" core-threads="4" keepalive-time="5000" reject-policy="RETRY_ABORT"/>
+
+<admin-object class-name="org.apache.activemq.command.ActiveMQQueue" jndi-name="java:/jms/queue/UVMSAssetCache" use-java-context="true" pool-name="UVMSAssetCache">
+	<config-property name="PhysicalName">
+		UVMSAssetCache
+	</config-property>
+</admin-object>

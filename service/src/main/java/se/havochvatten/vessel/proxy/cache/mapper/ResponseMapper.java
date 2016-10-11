@@ -74,7 +74,7 @@ public class ResponseMapper {
         assetContact.setEmail(rolePerson.getEmail());
         assetContact.setName(rolePerson.getPersonAdress().getName().getGivenname() + " " + rolePerson.getPersonAdress().getName().getSurname());
         assetContact.setNumber(rolePerson.getHomePhone() != null ? rolePerson.getHomePhone().getTelephoneNumber() : rolePerson.getMobilePhone().getTelephoneNumber());
-        asset.setContact(assetContact);
+        asset.getContact().add(assetContact);
     }
 
     private static void mapToAssetContact(Asset asset, OrganisationType organisationType) {
@@ -82,6 +82,6 @@ public class ResponseMapper {
         assetContact.setEmail(organisationType.getEmail());
         assetContact.setName(organisationType.getOrganisationAdress().getOrgName());
         assetContact.setNumber(organisationType.getPhone1()!=null ? organisationType.getPhone1().getTelephoneNumber() : null);
-        asset.setContact(assetContact);
+        asset.getContact().add(assetContact);
     }
 }

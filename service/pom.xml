@@ -9,7 +9,7 @@
     <parent>
         <groupId>se.havochvatten.vessel.proxy.cache</groupId>
         <artifactId>hav-vessel-proxy-cache</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -31,6 +31,7 @@
             <artifactId>asset-model</artifactId>
             <version>${asset.model.version}</version>
             <type>jar</type>
+            <classifier>date</classifier>
         </dependency>
 
         <dependency>

@@ -27,6 +27,7 @@ import se.havochvatten.vessel.proxy.cache.message.ProxyMessageSender;
 import javax.annotation.Resource;
 import javax.ejb.*;
 import javax.jms.Queue;
+import javax.persistence.NoResultException;
 import java.util.List;
 
 
@@ -51,15 +52,19 @@ public class GearTypesServiceBean {
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void updateGearTypes(){
-        GetGearsResponse response= clientProxyBean.getGearTypeList();
-        List<GearType> gearTypes = response.getGearList().getGear();
-        if(gearTypes.size()>0) {
-            LOG.debug("#######  Gear types size: " + gearTypes.size());
-            for(GearType gearType : gearTypes){
-                FishingGear fishingGear = mapToFishingGear(gearType);
-                LOG.debug("Send gear type: " +gearType.getId());
-                sendFishingGearUpdateToAssetModule(fishingGear);
+        try {
+            GetGearsResponse response = clientProxyBean.getGearTypeList();
+            List<GearType> gearTypes = response.getGearList().getGear();
+            if (gearTypes.size() > 0) {
+                LOG.debug("#######  Gear types size: " + gearTypes.size());
+                for (GearType gearType : gearTypes) {
+                    FishingGear fishingGear = mapToFishingGear(gearType);
+                    LOG.debug("Send gear type: " + gearType.getId());
+                    sendFishingGearUpdateToAssetModule(fishingGear);
+                }
             }
+        } catch (NoResultException e) {
+            LOG.error("NoResultException: {}", e.getMessage());
         }
     }
 

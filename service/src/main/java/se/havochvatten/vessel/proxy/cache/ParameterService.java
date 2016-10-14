@@ -14,10 +14,11 @@ package se.havochvatten.vessel.proxy.cache;
 import se.havochvatten.vessel.proxy.cache.constant.ParameterKey;
 
 import javax.ejb.Local;
+import javax.persistence.NoResultException;
 
 @Local
 public interface ParameterService {
 
-    public String getParameterValue(ParameterKey key);
+    String getParameterValue(ParameterKey key);
 
 }

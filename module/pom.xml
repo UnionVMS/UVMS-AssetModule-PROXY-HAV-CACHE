@@ -8,7 +8,7 @@
     <parent>
         <groupId>se.havochvatten.vessel.proxy.cache</groupId>
         <artifactId>hav-vessel-proxy-cache</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
     
     <name>${project.parent.artifactId}-module</name>

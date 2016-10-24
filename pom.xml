@@ -17,6 +17,7 @@
         <logback.version>1.1.2</logback.version>
         <logback.core.version>1.1.2</logback.core.version>
         <cache.version>0.3.6</cache.version>
+        <maven-release-plugin>2.5.3</maven-release-plugin>
 
         <asset.model.version>2.1.1</asset.model.version>
 
@@ -90,6 +91,27 @@
     <scm>
         <connection>scm:git:https://github.com/UnionVMS/UVMS-AssetModule-PROXY-HAV-CACHE.git</connection>
     </scm>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>${maven-release-plugin}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.scm</groupId>
+                        <artifactId>maven-scm-provider-gitexe</artifactId>
+                        <version>1.8.1</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <checkModificationExcludes>
+                        <checkModificationExclude>src/main/java/eu/europa/ec/fisheries/wsdl</checkModificationExclude>
+                    </checkModificationExcludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     
   <modules>
     <module>module</module>

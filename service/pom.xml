@@ -9,7 +9,7 @@
     <parent>
         <groupId>se.havochvatten.vessel.proxy.cache</groupId>
         <artifactId>hav-vessel-proxy-cache</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
     <properties>

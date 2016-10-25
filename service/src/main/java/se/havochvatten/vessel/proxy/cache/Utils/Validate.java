@@ -26,7 +26,7 @@ public class Validate {
             throw new ValidationException("GetVesselAndOwnerListByIdResponse has no vessel");
         }
 
-        else if(response.getVessel().getIrcs().isEmpty()){
+        else if(response.getVessel().getIrcs() == null || response.getVessel().getIrcs().isEmpty()){
             throw new ValidationException("Vessel has no IRCS, cannot get GearType if vessel has no IRCS");
         }
     }

@@ -27,7 +27,7 @@
         <equipment.client.version>1.0.2</equipment.client.version>
 
         <project.scm.id>github</project.scm.id>
-    <release.branch.name>uvms-2.1.1-kili</release.branch.name></properties>
+    <release.branch.name>release-2.1.2-legolas</release.branch.name></properties>
     
     <dependencies>
         <dependency>

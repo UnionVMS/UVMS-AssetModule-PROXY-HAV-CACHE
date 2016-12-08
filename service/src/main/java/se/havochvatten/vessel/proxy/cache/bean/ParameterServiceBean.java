@@ -28,7 +28,7 @@ import javax.persistence.Query;
 @Stateless
 public class ParameterServiceBean implements ParameterService {
 
-    @PersistenceContext(unitName = "domainPU")
+    @PersistenceContext(unitName = "asset")
     EntityManager em;
 
     final static Logger LOG = LoggerFactory.getLogger(ParameterServiceBean.class);

@@ -1,22 +1,22 @@
 package se.havochvatten.vessel.proxy.cache.bean;
 
-/*
-﻿Developed with the contribution of the European Commission - Directorate General for Maritime Affairs and Fisheries
-© European Union, 2015-2016.
-
-This file is part of the Integrated Fisheries Data Management (IFDM) Suite. The IFDM Suite is free software: you can
-redistribute it and/or modify it under the terms of the GNU General Public License as published by the
-Free Software Foundation, either version 3 of the License, or any later version. The IFDM Suite is distributed in
-the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details. You should have received a
-copy of the GNU General Public License along with the IFDM Suite. If not, see <http://www.gnu.org/licenses/>.
- */
-
-import eu.europa.ec.fisheries.uvms.asset.model.exception.AssetModelMarshallException;
-import eu.europa.ec.fisheries.uvms.asset.model.mapper.AssetModuleRequestMapper;
-import eu.europa.ec.fisheries.wsdl.asset.types.Asset;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import javax.ejb.EJB;
+import javax.ejb.LocalBean;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import eu.europa.ec.fisheries.uvms.asset.client.AssetClient;
+import eu.europa.ec.fisheries.uvms.asset.client.model.Asset;
+import eu.europa.ec.fisheries.uvms.asset.client.model.AssetBO;
+import eu.europa.ec.fisheries.uvms.commons.message.api.MessageException;
 import se.havochvatten.service.client.equipmentws.v1_0.GetGearByIdResponse;
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCSResponse;
 import se.havochvatten.service.client.notificationws.v4_0.generalnotification.GearChangeNotificationType;
@@ -27,22 +27,10 @@ import se.havochvatten.vessel.proxy.cache.ClientProxy;
 import se.havochvatten.vessel.proxy.cache.ParameterService;
 import se.havochvatten.vessel.proxy.cache.Utils.GearChangeNotificationTypeComparator;
 import se.havochvatten.vessel.proxy.cache.Utils.Validate;
-import se.havochvatten.vessel.proxy.cache.constant.Constants;
 import se.havochvatten.vessel.proxy.cache.constant.ParameterKey;
 import se.havochvatten.vessel.proxy.cache.exception.ProxyException;
 import se.havochvatten.vessel.proxy.cache.exception.ValidationException;
 import se.havochvatten.vessel.proxy.cache.mapper.ResponseMapper;
-import se.havochvatten.vessel.proxy.cache.message.ProxyMessageSender;
-
-import javax.annotation.Resource;
-import javax.ejb.*;
-import javax.inject.Inject;
-import javax.jms.Queue;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 @LocalBean
 @Stateless
@@ -50,21 +38,14 @@ public class VesselServiceBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(VesselServiceBean.class);
 
-    @Resource(mappedName = Constants.ASSET_MODULE_QUEUE)
-    private Queue assetModuleQueue;
-
-    @Resource(mappedName = Constants.PROXY_QUEUE)
-    private Queue responseModuleQueue;
-
     @EJB
     ClientProxy client;
 
-    @Inject
-    ProxyMessageSender proxyMessageSender;
-
+    @EJB
+    AssetClient assetClient;
+    
     @EJB
     private ParameterService parameterService;
-
 
     public List<Vessel> getVesselList(List<String> nations) throws ProxyException {
         GetVesselListByNationResponse vesselListByNation;
@@ -86,18 +67,24 @@ public class VesselServiceBean {
             try {
                 vesselAndOwnerListById = client.getVesselAndOwnerListById(vessel.getVesselId());
                 Validate.validateGetVesselAndOwnerListByIdResponse(vesselAndOwnerListById);
-                Asset asset = ResponseMapper.mapToAsset(vesselAndOwnerListById);
+                AssetBO assetBo = ResponseMapper.mapToAsset(vesselAndOwnerListById);
                 GetGearChangeNotificationListByVesselIRCSResponse gearType = client.getGearTypeByIRCS(vesselAndOwnerListById.getVessel().getIrcs());
-                setGearTypeInformation(asset, gearType);
+                setGearTypeInformation(assetBo.getAsset(), gearType);
                 //TODO: Remove when we know how to get this gear type
-                asset.setGearType("PELAGIC");
-                sendUpsertAssetModuleRequest(asset);
+//                asset.setGearType("PELAGIC");
+                assetBo.getAsset().setGearFishingType(1);
+//                sendUpsertAssetModuleRequest(assetBo);
+                assetClient.upsertAssetAsync(assetBo);
                 long totalTime = System.currentTimeMillis() - start;
                 LOG.debug("Vessel id: " +vesselAndOwnerListById.getVessel().getVesselId() + " Owner: " +vesselAndOwnerListById.getOwner().size() +" Total time in ms: "  + totalTime);
             } catch (ProxyException e) {
-                LOG.error("Could not get additional info for vessel with id: " + vessel.getVesselId());
+                LOG.error("Could not get additional info for vessel with id: {}", vessel.getVesselId());
             } catch (ValidationException e) {
                 LOG.error(e.getMessage());
+            } catch (JsonProcessingException e) {
+                LOG.error("Could not process JSON. Vessel: {}", vessel.getVesselId());
+            } catch (MessageException e) {
+                LOG.error("Could not send message to Asset. Vessel: {}", vessel.getVesselId());
             }
         }
     }
@@ -107,7 +94,7 @@ public class VesselServiceBean {
             // Sort the gear types by latest date
             Collections.sort(gearType.getGearChangeNotification(), new GearChangeNotificationTypeComparator());
             GearChangeNotificationType gearChangeNotificationType = gearType.getGearChangeNotification().get(0);
-            asset.setGearType(getGearTypeCode(gearChangeNotificationType.getGearCode()));
+            asset.setMainFishingGearCode(getGearTypeCode(gearChangeNotificationType.getGearCode()));
         }
     }
 
@@ -130,16 +117,16 @@ public class VesselServiceBean {
     }
 
 
-    private void sendUpsertAssetModuleRequest(Asset asset){
-        try {
-            String upsertAssetModuleRequest = AssetModuleRequestMapper.createUpsertAssetModuleRequest(asset, Constants.NATIONAL);
-            String s = proxyMessageSender.sendMessage(assetModuleQueue, responseModuleQueue, upsertAssetModuleRequest);
-        } catch (AssetModelMarshallException e) {
-            LOG.error("Could not map asset to createUpsertAssetModuleRequest", e.getMessage());
-        }catch (ProxyException e) {
-            LOG.error("Could not sen upsert message to Asset module with queue: " + Constants.ASSET_MODULE_QUEUE, e.getMessage());
-        }
-    }
+//    private void sendUpsertAssetModuleRequest(Asset asset){
+//        try {
+//            String upsertAssetModuleRequest = AssetModuleRequestMapper.createUpsertAssetModuleRequest(asset, Constants.NATIONAL);
+//            String s = proxyMessageSender.sendMessage(assetModuleQueue, responseModuleQueue, upsertAssetModuleRequest);
+//        } catch (AssetModelMarshallException e) {
+//            LOG.error("Could not map asset to createUpsertAssetModuleRequest", e.getMessage());
+//        }catch (ProxyException e) {
+//            LOG.error("Could not sen upsert message to Asset module with queue: " + Constants.ASSET_MODULE_QUEUE, e.getMessage());
+//        }
+//    }
 
     public List<String> getNationsFromDatabase(){
         String nations = parameterService.getParameterValue(ParameterKey.NATIONAL_VESSEL_NATIONS);

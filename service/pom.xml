@@ -27,11 +27,21 @@
             <version>${vessel.client.version}</version>
         </dependency>
         <dependency>
+            <groupId>eu.europa.ec.fisheries.uvms</groupId>
+            <artifactId>uvms-config</artifactId>
+            <version>${uvms.config.version}</version>
+        </dependency>
+        <dependency>
             <groupId>eu.europa.ec.fisheries.uvms.asset</groupId>
             <artifactId>asset-model</artifactId>
             <version>${asset.model.version}</version>
             <type>jar</type>
-            <classifier>date</classifier>
+        </dependency>
+        <dependency>
+            <groupId>eu.europa.ec.fisheries.uvms.asset</groupId>
+            <artifactId>asset-client</artifactId>
+            <version>${asset.model.version}</version>
+            <type>jar</type>
         </dependency>
 
         <dependency>
@@ -48,6 +58,19 @@
             <groupId>se.havochvatten.service.client</groupId>
             <artifactId>equipment-client</artifactId>
             <version>${equipment.client.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.9.4</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.9.4</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
       

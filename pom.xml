@@ -19,7 +19,7 @@
         <cache.version>0.3.6</cache.version>
         <maven-release-plugin>2.5.3</maven-release-plugin>
 
-        <asset.model.version>3.0.0</asset.model.version>
+        <asset.model.version>5.0.0-SNAPSHOT</asset.model.version>
 
         <vessel.client.version>2.1.3</vessel.client.version>
         <vessel.comp.client.version>2.0.3</vessel.comp.client.version>

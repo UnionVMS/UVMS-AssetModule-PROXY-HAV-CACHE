@@ -24,7 +24,7 @@ import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListByI
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselListByNationResponse;
 import se.havochvatten.service.client.vesselws.v2_1.vessel.Vessel;
 import se.havochvatten.vessel.proxy.cache.ClientProxy;
-import se.havochvatten.vessel.proxy.cache.ParameterService;
+import se.havochvatten.vessel.proxy.cache.LocalParameterService;
 import se.havochvatten.vessel.proxy.cache.Utils.GearChangeNotificationTypeComparator;
 import se.havochvatten.vessel.proxy.cache.Utils.Validate;
 import se.havochvatten.vessel.proxy.cache.constant.ParameterKey;
@@ -45,7 +45,7 @@ public class VesselServiceBean {
     AssetClient assetClient;
     
     @EJB
-    private ParameterService parameterService;
+    private LocalParameterService parameterService;
 
     public List<Vessel> getVesselList(List<String> nations) throws ProxyException {
         GetVesselListByNationResponse vesselListByNation;

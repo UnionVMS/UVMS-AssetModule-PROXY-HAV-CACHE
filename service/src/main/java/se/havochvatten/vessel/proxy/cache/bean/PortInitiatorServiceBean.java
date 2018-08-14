@@ -21,7 +21,7 @@ import se.havochvatten.service.client.vesselcompws.v2_0.VesselCompPortType;
 import se.havochvatten.service.client.vesselcompws.v2_0.VesselCompService;
 import se.havochvatten.service.client.vesselws.v2_1.VesselPortType;
 import se.havochvatten.service.client.vesselws.v2_1.VesselService;
-import se.havochvatten.vessel.proxy.cache.ParameterService;
+import se.havochvatten.vessel.proxy.cache.LocalParameterService;
 import se.havochvatten.vessel.proxy.cache.constant.ParameterKey;
 import se.havochvatten.vessel.proxy.cache.exception.ProxyException;
 
@@ -43,7 +43,7 @@ public class PortInitiatorServiceBean {
     private EquipmentPortType equipmentPortType;
 
     @EJB
-    private ParameterService parameterService;
+    private LocalParameterService parameterService;
 
     private void setupVesselPortType() throws ProxyException {
         VesselService vesselService = new VesselService();

@@ -14,7 +14,7 @@ package se.havochvatten.vessel.proxy.cache.bean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.havochvatten.vessel.proxy.cache.ParameterService;
+import se.havochvatten.vessel.proxy.cache.LocalParameterService;
 import se.havochvatten.vessel.proxy.cache.constant.Constants;
 import se.havochvatten.vessel.proxy.cache.constant.ParameterKey;
 import se.havochvatten.vessel.proxy.cache.entity.Parameter;
@@ -26,12 +26,12 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 @Stateless
-public class ParameterServiceBean implements ParameterService {
+public class LocalParameterServiceBean implements LocalParameterService {
 
     @PersistenceContext(unitName = "asset")
     EntityManager em;
 
-    final static Logger LOG = LoggerFactory.getLogger(ParameterServiceBean.class);
+    final static Logger LOG = LoggerFactory.getLogger(LocalParameterServiceBean.class);
 
     @Override
     public String getParameterValue(ParameterKey key)  {

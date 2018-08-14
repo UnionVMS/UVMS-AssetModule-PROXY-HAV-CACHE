@@ -15,7 +15,7 @@ import javax.ejb.Local;
 import se.havochvatten.vessel.proxy.cache.constant.ParameterKey;
 
 @Local
-public interface ParameterService {
+public interface LocalParameterService {
 
     String getParameterValue(ParameterKey key);
 

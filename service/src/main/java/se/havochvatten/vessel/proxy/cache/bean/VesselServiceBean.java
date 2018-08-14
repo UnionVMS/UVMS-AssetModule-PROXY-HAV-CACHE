@@ -22,7 +22,7 @@ import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificat
 import se.havochvatten.service.client.notificationws.v4_0.generalnotification.GearChangeNotificationType;
 import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListByIdResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselListByNationResponse;
-import se.havochvatten.service.client.vesselws.v2_1.error.Vessel;
+import se.havochvatten.service.client.vesselws.v2_1.vessel.Vessel;
 import se.havochvatten.vessel.proxy.cache.ClientProxy;
 import se.havochvatten.vessel.proxy.cache.ParameterService;
 import se.havochvatten.vessel.proxy.cache.Utils.GearChangeNotificationTypeComparator;

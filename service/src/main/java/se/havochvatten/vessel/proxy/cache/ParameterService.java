@@ -11,10 +11,8 @@ copy of the GNU General Public License along with the IFDM Suite. If not, see <h
  */
 package se.havochvatten.vessel.proxy.cache;
 
-import se.havochvatten.vessel.proxy.cache.constant.ParameterKey;
-
 import javax.ejb.Local;
-import javax.persistence.NoResultException;
+import se.havochvatten.vessel.proxy.cache.constant.ParameterKey;
 
 @Local
 public interface ParameterService {

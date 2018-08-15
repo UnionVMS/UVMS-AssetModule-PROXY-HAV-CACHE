@@ -17,7 +17,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import se.havochvatten.vessel.proxy.cache.bean.LocalParameterServiceBean;
+import se.havochvatten.vessel.proxy.cache.bean.ParameterServiceBean;
 import se.havochvatten.vessel.proxy.cache.bean.VesselServiceBean;
 import se.havochvatten.vessel.proxy.cache.constant.ParameterKey;
 
@@ -32,7 +32,7 @@ public class TestVesselServiceBean {
     private VesselServiceBean vesselServiceBean;
 
     @Mock
-    private LocalParameterServiceBean parameterService;
+    private ParameterServiceBean parameterService;
 
     private String nationsAsStringWithSpaces = " SWE , DN K, ESP , FIN";
     private List<String> nations = Arrays.asList("SWE", "DNK", "ESP" , "FIN");

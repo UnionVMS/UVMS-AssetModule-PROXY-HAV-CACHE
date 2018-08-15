@@ -4,7 +4,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -13,10 +15,13 @@ import javax.ejb.TransactionAttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import eu.europa.ec.fisheries.uvms.asset.client.AssetClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import eu.europa.ec.fisheries.uvms.asset.client.model.Asset;
 import eu.europa.ec.fisheries.uvms.asset.client.model.AssetBO;
+import eu.europa.ec.fisheries.uvms.commons.message.api.MessageConstants;
 import eu.europa.ec.fisheries.uvms.commons.message.api.MessageException;
+import eu.europa.ec.fisheries.uvms.commons.message.impl.AbstractProducer;
 import se.havochvatten.service.client.equipmentws.v1_0.GetGearByIdResponse;
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCSResponse;
 import se.havochvatten.service.client.notificationws.v4_0.generalnotification.GearChangeNotificationType;
@@ -24,7 +29,7 @@ import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListByI
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselListByNationResponse;
 import se.havochvatten.service.client.vesselws.v2_1.vessel.Vessel;
 import se.havochvatten.vessel.proxy.cache.ClientProxy;
-import se.havochvatten.vessel.proxy.cache.LocalParameterService;
+import se.havochvatten.vessel.proxy.cache.ParameterService;
 import se.havochvatten.vessel.proxy.cache.Utils.GearChangeNotificationTypeComparator;
 import se.havochvatten.vessel.proxy.cache.Utils.Validate;
 import se.havochvatten.vessel.proxy.cache.constant.ParameterKey;
@@ -42,10 +47,7 @@ public class VesselServiceBean {
     ClientProxy client;
 
     @EJB
-    AssetClient assetClient;
-    
-    @EJB
-    private LocalParameterService parameterService;
+    private ParameterService parameterService;
 
     public List<Vessel> getVesselList(List<String> nations) throws ProxyException {
         GetVesselListByNationResponse vesselListByNation;
@@ -73,8 +75,7 @@ public class VesselServiceBean {
                 //TODO: Remove when we know how to get this gear type
 //                asset.setGearType("PELAGIC");
                 assetBo.getAsset().setGearFishingType(1);
-//                sendUpsertAssetModuleRequest(assetBo);
-                assetClient.upsertAssetAsync(assetBo);
+                sendUpsertAssetModuleRequest(assetBo);
                 long totalTime = System.currentTimeMillis() - start;
                 LOG.debug("Vessel id: " +vesselAndOwnerListById.getVessel().getVesselId() + " Owner: " +vesselAndOwnerListById.getOwner().size() +" Total time in ms: "  + totalTime);
             } catch (ProxyException e) {
@@ -85,6 +86,8 @@ public class VesselServiceBean {
                 LOG.error("Could not process JSON. Vessel: {}", vessel.getVesselId());
             } catch (MessageException e) {
                 LOG.error("Could not send message to Asset. Vessel: {}", vessel.getVesselId());
+            } catch (Exception e) {
+                LOG.error("Exception occured when sending vessels to Asset", e);
             }
         }
     }
@@ -127,6 +130,20 @@ public class VesselServiceBean {
 //            LOG.error("Could not sen upsert message to Asset module with queue: " + Constants.ASSET_MODULE_QUEUE, e.getMessage());
 //        }
 //    }
+    
+    private void sendUpsertAssetModuleRequest(AssetBO asset) throws JsonProcessingException, MessageException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        
+        Map<String, String> properties = new HashMap<>();
+        properties.put("METHOD", "UPSERT_ASSET");
+        new AbstractProducer() {
+            @Override
+            public String getDestinationName() {
+                return MessageConstants.QUEUE_ASSET_EVENT;
+            }
+        }.sendModuleMessageWithProps(mapper.writeValueAsString(asset), null, properties);
+    }
 
     public List<String> getNationsFromDatabase(){
         String nations = parameterService.getParameterValue(ParameterKey.NATIONAL_VESSEL_NATIONS);

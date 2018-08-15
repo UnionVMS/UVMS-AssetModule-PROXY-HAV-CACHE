@@ -22,7 +22,6 @@
         <maven-release-plugin>2.5.3</maven-release-plugin>
 
         <asset.model.version>5.0.0-SNAPSHOT</asset.model.version>
-        <uvms.config.version>4.0.0</uvms.config.version>
 
         <vessel.client.version>2.1.20</vessel.client.version>
         <vessel.comp.client.version>2.0.3</vessel.comp.client.version>

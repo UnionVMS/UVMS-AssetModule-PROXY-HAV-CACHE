@@ -14,8 +14,8 @@ package se.havochvatten.vessel.proxy.cache.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
-import eu.europa.ec.fisheries.uvms.asset.client.model.Asset;
 import eu.europa.ec.fisheries.uvms.asset.client.model.AssetBO;
+import eu.europa.ec.fisheries.uvms.asset.client.model.AssetDTO;
 import eu.europa.ec.fisheries.uvms.asset.client.model.ContactInfo;
 import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListByIdResponse;
 import se.havochvatten.service.client.vesselcompws.v2_0.orgpers.OrganisationType;
@@ -24,34 +24,31 @@ import se.havochvatten.service.client.vesselcompws.v2_0.vessel.OwnerType;
 import se.havochvatten.service.client.vesselcompws.v2_0.vessel.Vessel;
 
 public class ResponseMapper {
+    
+    private ResponseMapper() {};
 
     public static AssetBO mapToAsset(GetVesselAndOwnerListByIdResponse vesselAndOwnerListByIdResponse){
 
         AssetBO assetBo = new AssetBO();
         
         Vessel vessel = vesselAndOwnerListByIdResponse.getVessel();
-        Asset asset = new Asset();
+        AssetDTO asset = new AssetDTO();
 
         asset.setActive(vessel.isActive());
         asset.setCfr(vessel.getCfr());
         asset.setFlagStateCode(vessel.getIso3AlphaNation());
         asset.setName(vessel.getVesselName());
         asset.setExternalMarking(vessel.getDistrict());
-        asset.setGrossTonnage(vessel.getEuTon().doubleValue());
-        asset.setLengthOverAll(vessel.getLoa().doubleValue());
-        asset.setPortOfRegistration(vessel.getDefaultPort()!=null ? vessel.getDefaultPort().getPort() : null);
+        asset.setGrossTonnage(vessel.getEuTon() != null ? vessel.getEuTon().doubleValue(): null);
+        asset.setLengthOverAll(vessel.getLoa() != null ? vessel.getLoa().doubleValue() : null);
+        asset.setPortOfRegistration(vessel.getDefaultPort() != null ? vessel.getDefaultPort().getPort() : null);
         asset.setImo(vessel.getImoNumber());
         asset.setIrcs(vessel.getIrcs());
-        asset.setIrcsIndicator(vessel.getIrcs() !=null);
+        asset.setIrcsIndicator(vessel.getIrcs() != null);
         asset.setSource("NATIONAL");
-        asset.setGrossTonnage(vessel.getEuTon().doubleValue());
-        asset.setLengthOverAll(vessel.getLoa().doubleValue());
-        asset.setPowerOfMainEngine(vessel.getEnginePower().doubleValue());
-        //asset.setHasLicense(vessel.getOwner().getAuthorizationAndLicenses().isEmpty() ? false : true);
-        //asset.setMmsiNo(vessel.get);
-        //asset.setLengthBetweenPerpendiculars();
-        //asset.setLicenseType();
-        //asset.setProducer();
+        asset.setPowerOfMainEngine(vessel.getEnginePower() != null ? vessel.getEnginePower().doubleValue() : null);
+        asset.setHasLicence(vessel.isHasLicense());
+        asset.setHasVms(vessel.isHasVms());
 
         assetBo.setAsset(asset);
         
@@ -77,17 +74,23 @@ public class ResponseMapper {
 
     private static ContactInfo mapToContactInfo(RolePersonType rolePerson) {
         ContactInfo assetContact = new ContactInfo();
+        assetContact.setType("Person");
         assetContact.setEmail(rolePerson.getEmail());
-        assetContact.setName(rolePerson.getPersonAdress().getName().getGivenname() + " " + rolePerson.getPersonAdress().getName().getSurname());
         assetContact.setPhoneNumber(rolePerson.getHomePhone() != null ? rolePerson.getHomePhone().getTelephoneNumber() : rolePerson.getMobilePhone().getTelephoneNumber());
+        assetContact.setName(rolePerson.getPersonAdress().getName().getGivenname() + " " + rolePerson.getPersonAdress().getName().getSurname());
+        assetContact.setStreetName(rolePerson.getPersonAdress().getStreet());
+        assetContact.setCityName(rolePerson.getPersonAdress().getCity());
         return assetContact;
     }
 
     private static ContactInfo mapToContactInfo(OrganisationType organisationType) {
         ContactInfo assetContact = new ContactInfo();
+        assetContact.setType("Organization");
         assetContact.setEmail(organisationType.getEmail());
         assetContact.setName(organisationType.getOrganisationAdress().getOrgName());
         assetContact.setPhoneNumber(organisationType.getPhone1()!=null ? organisationType.getPhone1().getTelephoneNumber() : null);
+        assetContact.setStreetName(organisationType.getOrganisationAdress().getStreet());
+        assetContact.setCityName(organisationType.getOrganisationAdress().getCity());
         return assetContact;
     }
 }

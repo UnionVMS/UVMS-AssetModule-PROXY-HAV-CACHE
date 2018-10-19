@@ -4,24 +4,20 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import eu.europa.ec.fisheries.uvms.asset.client.model.Asset;
+import eu.europa.ec.fisheries.uvms.asset.client.AssetClient;
 import eu.europa.ec.fisheries.uvms.asset.client.model.AssetBO;
-import eu.europa.ec.fisheries.uvms.commons.message.api.MessageConstants;
+import eu.europa.ec.fisheries.uvms.asset.client.model.AssetDTO;
 import eu.europa.ec.fisheries.uvms.commons.message.api.MessageException;
-import eu.europa.ec.fisheries.uvms.commons.message.impl.AbstractProducer;
 import se.havochvatten.service.client.equipmentws.v1_0.GetGearByIdResponse;
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCSResponse;
 import se.havochvatten.service.client.notificationws.v4_0.generalnotification.GearChangeNotificationType;
@@ -46,6 +42,9 @@ public class VesselServiceBean {
     @EJB
     ClientProxy client;
 
+    @Inject
+    private AssetClient assetClient;
+    
     @EJB
     private ParameterService parameterService;
 
@@ -64,7 +63,6 @@ public class VesselServiceBean {
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void sendVesselAndOwnerInfoToAssetModule(List<Vessel> vesselList)  {
         for (Vessel vessel : vesselList) {
-            long start = System.currentTimeMillis();
             GetVesselAndOwnerListByIdResponse vesselAndOwnerListById;
             try {
                 vesselAndOwnerListById = client.getVesselAndOwnerListById(vessel.getVesselId());
@@ -73,11 +71,9 @@ public class VesselServiceBean {
                 GetGearChangeNotificationListByVesselIRCSResponse gearType = client.getGearTypeByIRCS(vesselAndOwnerListById.getVessel().getIrcs());
                 setGearTypeInformation(assetBo.getAsset(), gearType);
                 //TODO: Remove when we know how to get this gear type
-//                asset.setGearType("PELAGIC");
-                assetBo.getAsset().setGearFishingType(1);
-                sendUpsertAssetModuleRequest(assetBo);
-                long totalTime = System.currentTimeMillis() - start;
-                LOG.debug("Vessel id: " +vesselAndOwnerListById.getVessel().getVesselId() + " Owner: " +vesselAndOwnerListById.getOwner().size() +" Total time in ms: "  + totalTime);
+                assetBo.getAsset().setGearFishingType("PELAGIC");
+                assetClient.upsertAssetAsync(assetBo);
+                LOG.debug("Vessel id: " + vesselAndOwnerListById.getVessel().getVesselId() + " Owner: " + vesselAndOwnerListById.getOwner().size());
             } catch (ProxyException e) {
                 LOG.error("Could not get additional info for vessel with id: {}", vessel.getVesselId());
             } catch (ValidationException e) {
@@ -92,7 +88,7 @@ public class VesselServiceBean {
         }
     }
 
-    private void setGearTypeInformation(Asset asset, GetGearChangeNotificationListByVesselIRCSResponse gearType) {
+    private void setGearTypeInformation(AssetDTO asset, GetGearChangeNotificationListByVesselIRCSResponse gearType) {
         if (gearType.getGearChangeNotification().size() > 0) {
             // Sort the gear types by latest date
             Collections.sort(gearType.getGearChangeNotification(), new GearChangeNotificationTypeComparator());
@@ -117,32 +113,6 @@ public class VesselServiceBean {
             }
         }
         return gearTypeInfo;
-    }
-
-
-//    private void sendUpsertAssetModuleRequest(Asset asset){
-//        try {
-//            String upsertAssetModuleRequest = AssetModuleRequestMapper.createUpsertAssetModuleRequest(asset, Constants.NATIONAL);
-//            String s = proxyMessageSender.sendMessage(assetModuleQueue, responseModuleQueue, upsertAssetModuleRequest);
-//        } catch (AssetModelMarshallException e) {
-//            LOG.error("Could not map asset to createUpsertAssetModuleRequest", e.getMessage());
-//        }catch (ProxyException e) {
-//            LOG.error("Could not sen upsert message to Asset module with queue: " + Constants.ASSET_MODULE_QUEUE, e.getMessage());
-//        }
-//    }
-    
-    private void sendUpsertAssetModuleRequest(AssetBO asset) throws JsonProcessingException, MessageException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        
-        Map<String, String> properties = new HashMap<>();
-        properties.put("METHOD", "UPSERT_ASSET");
-        new AbstractProducer() {
-            @Override
-            public String getDestinationName() {
-                return MessageConstants.QUEUE_ASSET_EVENT;
-            }
-        }.sendModuleMessageWithProps(mapper.writeValueAsString(asset), null, properties);
     }
 
     public List<String> getNationsFromDatabase(){

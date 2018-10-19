@@ -11,24 +11,27 @@ FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more d
 copy of the GNU General Public License along with the IFDM Suite. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import eu.europa.ec.fisheries.uvms.asset.model.exception.AssetModelMarshallException;
+import java.util.List;
+import javax.annotation.Resource;
+import javax.ejb.EJB;
+import javax.ejb.LocalBean;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.jms.Queue;
+import javax.persistence.NoResultException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import eu.europa.ec.fisheries.uvms.asset.model.exception.AssetException;
 import eu.europa.ec.fisheries.uvms.asset.model.mapper.AssetModuleRequestMapper;
 import eu.europa.ec.fisheries.wsdl.asset.types.FishingGear;
 import eu.europa.ec.fisheries.wsdl.asset.types.FishingGearType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import se.havochvatten.service.client.equipmentws.v1_0.GetGearsResponse;
 import se.havochvatten.service.client.equipmentws.v1_0.error.GearType;
 import se.havochvatten.vessel.proxy.cache.ClientProxy;
 import se.havochvatten.vessel.proxy.cache.constant.Constants;
 import se.havochvatten.vessel.proxy.cache.exception.ProxyException;
 import se.havochvatten.vessel.proxy.cache.message.ProxyMessageSender;
-
-import javax.annotation.Resource;
-import javax.ejb.*;
-import javax.jms.Queue;
-import javax.persistence.NoResultException;
-import java.util.List;
 
 
 @LocalBean
@@ -73,7 +76,7 @@ public class GearTypesServiceBean {
         try {
             String upsertFishingGearListRequest = AssetModuleRequestMapper.createUpsertFishingGearModuleRequest(fishingGear, "UVMS Vessel Cache");
             String s = proxyMessageSender.sendMessage(assetModuleQueue, responseModuleQueue, upsertFishingGearListRequest);Thread.sleep(1000L);
-        } catch (AssetModelMarshallException e) {
+        } catch (AssetException e) {
                 LOG.error("Could not marshalle the request upsertFishingGearListRequest");
         } catch (ProxyException e) {
             LOG.error("Cannot send reqest to Asset module, queue: " + Constants.ASSET_MODULE_QUEUE);

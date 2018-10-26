@@ -48,8 +48,8 @@ public class VesselCacheProxyExecutorService {
         VesselServiceTask vesselServiceTask = new VesselServiceTask(vesselServiceBean);
         GearTypesServiceTask gearTypesServiceTask = new GearTypesServiceTask(gearTypesServiceBean);
 
-        executorService.scheduleWithFixedDelay(vesselServiceTask, 30, 1440, TimeUnit.MINUTES);
-        executorService.scheduleWithFixedDelay(gearTypesServiceTask, 5, 1440, TimeUnit.MINUTES);
+        executorService.scheduleWithFixedDelay(vesselServiceTask, 6, 1440, TimeUnit.MINUTES);
+        executorService.scheduleWithFixedDelay(gearTypesServiceTask, 4, 1440, TimeUnit.MINUTES);
     }
 
     @PreDestroy

@@ -112,7 +112,7 @@ public class ClientProxyBean implements ClientProxy {
         try {
             gears = equipmentPortType.getGears(getGearsRequest);
         } catch (EquipmentException e) {
-            e.printStackTrace();
+            LOG.error("Could not get gear type list", e);
         }
         return gears;
     }

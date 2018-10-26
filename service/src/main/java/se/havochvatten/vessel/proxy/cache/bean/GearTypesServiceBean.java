@@ -1,4 +1,3 @@
-package se.havochvatten.vessel.proxy.cache.bean;
 /*
 ﻿Developed with the contribution of the European Commission - Directorate General for Maritime Affairs and Fisheries
 © European Union, 2015-2016.
@@ -10,95 +9,96 @@ the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the impl
 FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details. You should have received a
 copy of the GNU General Public License along with the IFDM Suite. If not, see <http://www.gnu.org/licenses/>.
  */
+package se.havochvatten.vessel.proxy.cache.bean;
 
+import java.time.OffsetDateTime;
+import java.util.HashMap;
 import java.util.List;
-import javax.annotation.Resource;
+import java.util.Map;
 import javax.ejb.EJB;
-import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.jms.Queue;
-import javax.persistence.NoResultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import eu.europa.ec.fisheries.uvms.asset.model.exception.AssetException;
-import eu.europa.ec.fisheries.uvms.asset.model.mapper.AssetModuleRequestMapper;
-import eu.europa.ec.fisheries.wsdl.asset.types.FishingGear;
-import eu.europa.ec.fisheries.wsdl.asset.types.FishingGearType;
+import eu.europa.ec.fisheries.uvms.asset.client.AssetClient;
+import eu.europa.ec.fisheries.uvms.asset.client.model.CustomCode;
+import eu.europa.ec.fisheries.uvms.asset.client.model.CustomCodesPK;
 import se.havochvatten.service.client.equipmentws.v1_0.GetGearsResponse;
 import se.havochvatten.service.client.equipmentws.v1_0.error.GearType;
+import se.havochvatten.service.client.equipmentws.v1_0.error.GearTypeType;
 import se.havochvatten.vessel.proxy.cache.ClientProxy;
-import se.havochvatten.vessel.proxy.cache.constant.Constants;
-import se.havochvatten.vessel.proxy.cache.exception.ProxyException;
-import se.havochvatten.vessel.proxy.cache.message.ProxyMessageSender;
 
-
-@LocalBean
 @Stateless
 public class GearTypesServiceBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(GearTypesServiceBean.class);
+    
+    private static final String GEAR = "FISHING_GEAR";
+    private static final String GEAR_TYPE = "FISHING_GEAR_TYPE";
+    private static final String GEAR_GROUP = "FISHING_GEAR_GROUP";
 
-    @Resource(mappedName = Constants.ASSET_MODULE_QUEUE)
-    private Queue assetModuleQueue;
-
-    @Resource(mappedName = Constants.PROXY_QUEUE)
-    private Queue responseModuleQueue;
+    @EJB
+    private AssetClient assetClient;
 
     @EJB
     private ClientProxy clientProxyBean;
 
-    @EJB
-    private ProxyMessageSender proxyMessageSender;
-
-
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void updateGearTypes(){
         try {
             GetGearsResponse response = clientProxyBean.getGearTypeList();
             List<GearType> gearTypes = response.getGearList().getGear();
-            if (gearTypes.size() > 0) {
-                LOG.debug("#######  Gear types size: " + gearTypes.size());
-                for (GearType gearType : gearTypes) {
-                    FishingGear fishingGear = mapToFishingGear(gearType);
-                    LOG.debug("Send gear type: " + gearType.getId());
-                    sendFishingGearUpdateToAssetModule(fishingGear);
-                }
+            LOG.info("Gear types size: {}", gearTypes.size());
+            for (GearType gearType : gearTypes) {
+                createGearAndConstants(gearType);
             }
-        } catch (NoResultException e) {
-            LOG.error("NoResultException: {}", e.getMessage());
+        } catch (Exception e) {
+            LOG.error("Could not update fishing gears", e);
         }
     }
-
-
-    private void sendFishingGearUpdateToAssetModule(FishingGear fishingGear) {
+    
+    private void createGearAndConstants(GearType gearType) {
         try {
-            String upsertFishingGearListRequest = AssetModuleRequestMapper.createUpsertFishingGearModuleRequest(fishingGear, "UVMS Vessel Cache");
-            String s = proxyMessageSender.sendMessage(assetModuleQueue, responseModuleQueue, upsertFishingGearListRequest);Thread.sleep(1000L);
-        } catch (AssetException e) {
-                LOG.error("Could not marshalle the request upsertFishingGearListRequest");
-        } catch (ProxyException e) {
-            LOG.error("Cannot send reqest to Asset module, queue: " + Constants.ASSET_MODULE_QUEUE);
-        } catch (InterruptedException e) {
-            LOG.error("Could not set the thread to sleep in 10 seconds");
-        }catch (Exception exception){
-            LOG.error("An unexpected exception occurred");
+            createGearTypeIfNotExists(gearType.getGearType());
+            createGearGroupIfNotExists(gearType.getGearGroup());
+            createFishingGear(gearType);
+        } catch (Exception e) {
+            LOG.error("Could not create gear {} due to {}", gearType.getFaoCode(), e.getMessage());
         }
     }
 
-
-    private FishingGear mapToFishingGear(GearType gearType) {
-        FishingGear fishingGear = new FishingGear();
-        FishingGearType fishingGearType = new FishingGearType();
-        fishingGear.setCode(gearType.getFaoCode());
-        fishingGear.setDescription(gearType.getNameSwe());
-        fishingGear.setName(gearType.getNameSwe());
-        fishingGear.setExternalId(gearType.getId().longValue());
-        fishingGear.setFishingGearType(fishingGearType);
-        fishingGearType.setName(gearType.getGearType().getNameSwe());
-        fishingGearType.setCode(gearType.getGearType().getCode());
-        return fishingGear;
+    private void createFishingGear(GearType gearType) {
+        List<CustomCode> codes = assetClient.getCodeForDate(GEAR, gearType.getFaoCode(), OffsetDateTime.now());
+        if (codes.isEmpty()) {
+            CustomCode gear = new CustomCode();
+            CustomCodesPK key = new CustomCodesPK(GEAR, gearType.getFaoCode());
+            gear.setPrimaryKey(key);
+            gear.setDescription(gearType.getNameEng());
+            Map<String, String> nameValue = new HashMap<>();
+            nameValue.put(GEAR_TYPE, Integer.toString(gearType.getGearType().getCode()));
+            nameValue.put(GEAR_GROUP, Integer.toString(gearType.getGearGroup().getCode()));
+            gear.setNameValue(nameValue);
+            assetClient.createCustomCode(gear);
+        }
     }
 
+    private void createGearTypeIfNotExists(GearTypeType gearType) {
+        List<CustomCode> codes = assetClient.getCodeForDate(GEAR_TYPE, Integer.toString(gearType.getCode()), OffsetDateTime.now());
+        if (codes.isEmpty()) {
+            CustomCode type = new CustomCode();
+            CustomCodesPK key = new CustomCodesPK(GEAR_TYPE, Integer.toString(gearType.getCode()));
+            type.setPrimaryKey(key);
+            type.setDescription(gearType.getNameEng());
+            assetClient.createCustomCode(type);
+        }
+    }
+    
+    private void createGearGroupIfNotExists(GearTypeType gearGroup) {
+        List<CustomCode> codes = assetClient.getCodeForDate(GEAR_GROUP, Integer.toString(gearGroup.getCode()), OffsetDateTime.now());
+        if (codes.isEmpty()) {
+            CustomCode group = new CustomCode();
+            CustomCodesPK key = new CustomCodesPK(GEAR_GROUP, Integer.toString(gearGroup.getCode()));
+            group.setPrimaryKey(key);
+            group.setDescription(gearGroup.getNameEng());
+            assetClient.createCustomCode(group);
+        }
+    }
 }

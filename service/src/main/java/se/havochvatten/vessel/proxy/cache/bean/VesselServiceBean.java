@@ -42,7 +42,7 @@ public class VesselServiceBean {
     @EJB
     ClientProxy client;
 
-    @Inject
+    @EJB
     private AssetClient assetClient;
     
     @EJB
@@ -78,8 +78,6 @@ public class VesselServiceBean {
                 LOG.error("Could not get additional info for vessel with id: {}", vessel.getVesselId());
             } catch (ValidationException e) {
                 LOG.error(e.getMessage());
-            } catch (JsonProcessingException e) {
-                LOG.error("Could not process JSON. Vessel: {}", vessel.getVesselId());
             } catch (MessageException e) {
                 LOG.error("Could not send message to Asset. Vessel: {}", vessel.getVesselId());
             } catch (Exception e) {
@@ -106,7 +104,7 @@ public class VesselServiceBean {
             try {
                 gearTypeByCode = client.getGearTypeByCode(BigInteger.valueOf(id));
                 if (gearTypeByCode != null) {
-                    gearTypeInfo = gearTypeByCode.getGear().getId() + " " + gearTypeByCode.getGear().getNameEng();
+                    gearTypeInfo = gearTypeByCode.getGear().getFaoCode();
                 }
             } catch (ProxyException e) {
                 LOG.error("Could not set gear type");

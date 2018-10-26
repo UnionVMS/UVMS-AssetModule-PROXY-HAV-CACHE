@@ -18,10 +18,9 @@
     <name>${project.artifactId}</name>
     
     <properties>
-        <cache.version>0.3.6</cache.version>
         <maven-release-plugin>2.5.3</maven-release-plugin>
 
-        <asset.model.version>6.0.15-SNAPSHOT</asset.model.version>
+        <asset.model.version>6.0.15</asset.model.version>
         <uvms.common.version>3.0.29</uvms.common.version>
 
         <vessel.client.version>2.1.20</vessel.client.version>

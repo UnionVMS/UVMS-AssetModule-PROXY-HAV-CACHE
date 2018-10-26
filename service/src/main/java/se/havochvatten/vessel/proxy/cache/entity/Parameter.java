@@ -11,18 +11,18 @@ copy of the GNU General Public License along with the IFDM Suite. If not, see <h
  */
 package se.havochvatten.vessel.proxy.cache.entity;
 
-import se.havochvatten.vessel.proxy.cache.constant.Constants;
-
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.NamedQuery;
-import java.io.Serializable;
 
 @Entity
-@NamedQuery(name = Constants.FIND_BY_NAME, query = "SELECT p FROM Parameter p WHERE p.paramId = :key")
+@NamedQuery(name = Parameter.FIND_BY_NAME, query = "SELECT p FROM Parameter p WHERE p.paramId = :key")
 public class Parameter implements Serializable {
 
+    public static final String FIND_BY_NAME = "Parameter.findByName";
+    
     private static final long serialVersionUID = 1L;
 
     @Id

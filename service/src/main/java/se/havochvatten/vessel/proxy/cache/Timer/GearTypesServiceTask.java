@@ -28,10 +28,10 @@ public class GearTypesServiceTask implements Runnable {
 
     @Override
     public void run() {
-        LOG.debug("GearTypesServiceTask run!");
+        LOG.info("GearTypesServiceTask run!");
         long start = System.currentTimeMillis();
         gearTypesServiceBean.updateGearTypes();
         long tot = System.currentTimeMillis() - start;
-        LOG.debug("--------------- GearTypesServiceTask total time " +  tot +" ms      -------------");
+        LOG.info("--------------- GearTypesServiceTask total time " +  tot +" ms      -------------");
     }
 }

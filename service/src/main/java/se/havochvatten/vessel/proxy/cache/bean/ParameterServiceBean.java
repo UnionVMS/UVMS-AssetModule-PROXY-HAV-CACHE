@@ -12,18 +12,16 @@ copy of the GNU General Public License along with the IFDM Suite. If not, see <h
 
 package se.havochvatten.vessel.proxy.cache.bean;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import se.havochvatten.vessel.proxy.cache.ParameterService;
-import se.havochvatten.vessel.proxy.cache.constant.Constants;
-import se.havochvatten.vessel.proxy.cache.constant.ParameterKey;
-import se.havochvatten.vessel.proxy.cache.entity.Parameter;
-
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import se.havochvatten.vessel.proxy.cache.ParameterService;
+import se.havochvatten.vessel.proxy.cache.constant.ParameterKey;
+import se.havochvatten.vessel.proxy.cache.entity.Parameter;
 
 @Stateless
 public class ParameterServiceBean implements ParameterService {
@@ -36,7 +34,7 @@ public class ParameterServiceBean implements ParameterService {
     @Override
     public String getParameterValue(ParameterKey key)  {
         try {
-            Query query = em.createNamedQuery(Constants.FIND_BY_NAME);
+            Query query = em.createNamedQuery(Parameter.FIND_BY_NAME);
             query.setParameter("key", key.getKey());
             Parameter entity = (Parameter) query.getSingleResult();
             return entity.getParamValue();

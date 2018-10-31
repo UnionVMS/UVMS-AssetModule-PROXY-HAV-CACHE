@@ -13,13 +13,12 @@ copy of the GNU General Public License along with the IFDM Suite. If not, see <h
 package se.havochvatten.vessel.proxy.cache.Timer;
 
 
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.havochvatten.service.client.vesselws.v2_1.error.Vessel;
+import se.havochvatten.service.client.vesselws.v2_1.vessel.Vessel;
 import se.havochvatten.vessel.proxy.cache.bean.VesselServiceBean;
 import se.havochvatten.vessel.proxy.cache.exception.ProxyException;
-
-import java.util.List;
 
 public class VesselServiceTask implements Runnable{
 

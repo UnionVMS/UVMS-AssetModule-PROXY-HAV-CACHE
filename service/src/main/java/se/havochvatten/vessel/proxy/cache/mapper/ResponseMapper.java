@@ -12,76 +12,85 @@ copy of the GNU General Public License along with the IFDM Suite. If not, see <h
 
 package se.havochvatten.vessel.proxy.cache.mapper;
 
-import eu.europa.ec.fisheries.wsdl.asset.types.*;
+import java.util.ArrayList;
+import java.util.List;
+import eu.europa.ec.fisheries.uvms.asset.client.model.AssetBO;
+import eu.europa.ec.fisheries.uvms.asset.client.model.AssetDTO;
+import eu.europa.ec.fisheries.uvms.asset.client.model.ContactInfo;
 import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListByIdResponse;
 import se.havochvatten.service.client.vesselcompws.v2_0.orgpers.OrganisationType;
 import se.havochvatten.service.client.vesselcompws.v2_0.orgpers.RolePersonType;
 import se.havochvatten.service.client.vesselcompws.v2_0.vessel.OwnerType;
 import se.havochvatten.service.client.vesselcompws.v2_0.vessel.Vessel;
 
-import java.util.List;
-
 public class ResponseMapper {
+    
+    private ResponseMapper() {};
 
-    public static Asset mapToAsset(GetVesselAndOwnerListByIdResponse vesselAndOwnerListByIdResponse){
-        Asset asset = new Asset();
+    public static AssetBO mapToAsset(GetVesselAndOwnerListByIdResponse vesselAndOwnerListByIdResponse){
 
+        AssetBO assetBo = new AssetBO();
+        
         Vessel vessel = vesselAndOwnerListByIdResponse.getVessel();
+        AssetDTO asset = new AssetDTO();
+
+        asset.setActive(vessel.isActive());
+        asset.setCfr(vessel.getCfr());
+        asset.setFlagStateCode(vessel.getIso3AlphaNation());
+        asset.setName(vessel.getVesselName());
+        asset.setExternalMarking(vessel.getDistrict());
+        asset.setGrossTonnage(vessel.getEuTon() != null ? vessel.getEuTon().doubleValue(): null);
+        asset.setLengthOverAll(vessel.getLoa() != null ? vessel.getLoa().doubleValue() : null);
+        asset.setPortOfRegistration(vessel.getDefaultPort() != null ? vessel.getDefaultPort().getPort() : null);
+        asset.setImo(vessel.getImoNumber());
+        asset.setIrcs(vessel.getIrcs());
+        asset.setIrcsIndicator(vessel.getIrcs() != null);
+        asset.setSource("NATIONAL");
+        asset.setPowerOfMainEngine(vessel.getEnginePower() != null ? vessel.getEnginePower().doubleValue() : null);
+        asset.setHasLicence(vessel.isHasLicense());
+        asset.setHasVms(vessel.isHasVms());
+
+        assetBo.setAsset(asset);
+        
+        List<ContactInfo> contacts = new ArrayList<>();
+
         List<OwnerType> owners = vesselAndOwnerListByIdResponse.getOwner();
-
-        AssetId assetId = new AssetId();
-        assetId.setType(AssetIdType.CFR);
-        assetId.setValue(vessel.getCfr());
-
-        if (!owners.isEmpty()) {
-            OwnerType owner = owners.get(0);
+        for (OwnerType owner : owners) {
             OrganisationType organisation = owner.getOrganisation();
             RolePersonType rolePerson = owner.getRolePerson();
 
-            if(rolePerson!=null){
-                mapToAssetContact(asset, rolePerson);
-            }else if (organisation!=null){
-                mapToAssetContact(asset, organisation);
+            ContactInfo contactInfo = null;
+            if (rolePerson != null) {
+                contactInfo = mapToContactInfo(rolePerson);
+            } else if (organisation != null) {
+                contactInfo = mapToContactInfo(organisation);
             }
+            contacts.add(contactInfo);
         }
+        assetBo.setContacts(contacts);
 
-        asset.setActive(vessel.isActive());
-        asset.setAssetId(assetId);
-        asset.setCfr(vessel.getCfr());
-        asset.setCountryCode(vessel.getIso3AlphaNation());
-        asset.setName(vessel.getVesselName());
-        asset.setExternalMarking(vessel.getDistrict());
-        asset.setGrossTonnage(vessel.getEuTon());
-        asset.setLengthOverAll(vessel.getLoa());
-        asset.setHomePort(vessel.getDefaultPort()!=null ? vessel.getDefaultPort().getPort() : null);
-        asset.setImo(vessel.getImoNumber());
-        asset.setIrcs(vessel.getIrcs());
-        asset.setHasIrcs(vessel.getIrcs() !=null ? "Y" : "N");
-        asset.setSource(CarrierSource.NATIONAL);
-        asset.setGrossTonnage(vessel.getEuTon());
-        asset.setLengthOverAll(vessel.getLoa());
-        asset.setPowerMain(vessel.getEnginePower());
-        //asset.setHasLicense(vessel.getOwner().getAuthorizationAndLicenses().isEmpty() ? false : true);
-        //asset.setMmsiNo(vessel.get);
-        //asset.setLengthBetweenPerpendiculars();
-        //asset.setLicenseType();
-        //asset.setProducer();
-        return asset;
+        return assetBo;
     }
 
-    private static void mapToAssetContact(Asset asset, RolePersonType rolePerson) {
-        AssetContact assetContact = new AssetContact();
+    private static ContactInfo mapToContactInfo(RolePersonType rolePerson) {
+        ContactInfo assetContact = new ContactInfo();
+        assetContact.setType("Person");
         assetContact.setEmail(rolePerson.getEmail());
+        assetContact.setPhoneNumber(rolePerson.getHomePhone() != null ? rolePerson.getHomePhone().getTelephoneNumber() : rolePerson.getMobilePhone().getTelephoneNumber());
         assetContact.setName(rolePerson.getPersonAdress().getName().getGivenname() + " " + rolePerson.getPersonAdress().getName().getSurname());
-        assetContact.setNumber(rolePerson.getHomePhone() != null ? rolePerson.getHomePhone().getTelephoneNumber() : rolePerson.getMobilePhone().getTelephoneNumber());
-        asset.getContact().add(assetContact);
+        assetContact.setStreetName(rolePerson.getPersonAdress().getStreet());
+        assetContact.setCityName(rolePerson.getPersonAdress().getCity());
+        return assetContact;
     }
 
-    private static void mapToAssetContact(Asset asset, OrganisationType organisationType) {
-        AssetContact assetContact = new AssetContact();
+    private static ContactInfo mapToContactInfo(OrganisationType organisationType) {
+        ContactInfo assetContact = new ContactInfo();
+        assetContact.setType("Organization");
         assetContact.setEmail(organisationType.getEmail());
         assetContact.setName(organisationType.getOrganisationAdress().getOrgName());
-        assetContact.setNumber(organisationType.getPhone1()!=null ? organisationType.getPhone1().getTelephoneNumber() : null);
-        asset.getContact().add(assetContact);
+        assetContact.setPhoneNumber(organisationType.getPhone1()!=null ? organisationType.getPhone1().getTelephoneNumber() : null);
+        assetContact.setStreetName(organisationType.getOrganisationAdress().getStreet());
+        assetContact.setCityName(organisationType.getOrganisationAdress().getCity());
+        return assetContact;
     }
 }

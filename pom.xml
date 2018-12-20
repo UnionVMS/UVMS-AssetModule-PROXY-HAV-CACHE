@@ -10,7 +10,7 @@
     
     <groupId>se.havochvatten.vessel.proxy.cache</groupId>
     <artifactId>hav-vessel-proxy-cache</artifactId>
-    <version>3.0.2</version>
+    <version>3.0.3-SNAPSHOT</version>
     
     <packaging>pom</packaging>
     

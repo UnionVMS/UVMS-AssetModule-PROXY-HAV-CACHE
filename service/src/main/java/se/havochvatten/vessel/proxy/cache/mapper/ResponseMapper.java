@@ -52,16 +52,18 @@ public class ResponseMapper {
         asset.setHasLicence(vessel.isHasLicense());
         asset.setHasVms(vessel.isHasVms());
 
-        VesselEuFormatType vesselEu = vesselEuFormat.getVesselEuFormat();
-        if (vesselEu != null) {
-            if (vesselEu.getIdentification() != null && vesselEu.getIdentification().getMmsi() != null) {
-                asset.setMmsi(vesselEu.getIdentification().getMmsi().toString());
-            }
-            if (vesselEu.getConstruction() != null) {
-                if (vesselEu.getConstruction().getYearOfConstruction() != null) {
-                    asset.setConstructionYear(vesselEu.getConstruction().getYearOfConstruction().toString());
+        if (vesselEuFormat != null) {
+            VesselEuFormatType vesselEu = vesselEuFormat.getVesselEuFormat();
+            if (vesselEu != null) {
+                if (vesselEu.getIdentification() != null && vesselEu.getIdentification().getMmsi() != null) {
+                    asset.setMmsi(vesselEu.getIdentification().getMmsi().toString());
                 }
-                asset.setConstructionPlace(vesselEu.getConstruction().getPlaceOfConstruction());
+                if (vesselEu.getConstruction() != null) {
+                    if (vesselEu.getConstruction().getYearOfConstruction() != null) {
+                        asset.setConstructionYear(vesselEu.getConstruction().getYearOfConstruction().toString());
+                    }
+                    asset.setConstructionPlace(vesselEu.getConstruction().getPlaceOfConstruction());
+                }
             }
         }
         

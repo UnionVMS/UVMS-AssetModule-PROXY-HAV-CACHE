@@ -15,6 +15,7 @@ import se.havochvatten.service.client.equipmentws.v1_0.GetGearByIdResponse;
 import se.havochvatten.service.client.equipmentws.v1_0.GetGearsResponse;
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCSResponse;
 import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListByIdResponse;
+import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByCFRResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselListByNationResponse;
 import se.havochvatten.vessel.proxy.cache.exception.ProxyException;
 
@@ -34,7 +35,8 @@ public interface ClientProxy {
     public GetVesselAndOwnerListByIdResponse getVesselAndOwnerListById(String id) throws ProxyException;
     public GetGearChangeNotificationListByVesselIRCSResponse getGearTypeByIRCS(String ircs) throws ProxyException;
     public GetGearByIdResponse getGearTypeByCode(BigInteger id) throws ProxyException;
-
+    public GetVesselEuFormatByCFRResponse getVesselEuFormatByCFR(String cfr) throws ProxyException;
+    
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     GetGearsResponse getGearTypeList();
 }

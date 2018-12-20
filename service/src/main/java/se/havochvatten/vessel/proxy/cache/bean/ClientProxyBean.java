@@ -20,6 +20,8 @@ import se.havochvatten.service.client.notificationws.v4_0.NotificationException;
 import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListById;
 import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListByIdResponse;
 import se.havochvatten.service.client.vesselcompws.v2_0.VesselCompPortType;
+import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByCFR;
+import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByCFRResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselListByNation;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselListByNationResponse;
 import se.havochvatten.service.client.vesselws.v2_1.VesselException;
@@ -115,6 +117,19 @@ public class ClientProxyBean implements ClientProxy {
             LOG.error("Could not get gear type list", e);
         }
         return gears;
+    }
+
+    @Override
+    public GetVesselEuFormatByCFRResponse getVesselEuFormatByCFR(String cfr) throws ProxyException {
+        GetVesselEuFormatByCFR getVesselEuFormatParam = new GetVesselEuFormatByCFR();
+        getVesselEuFormatParam.setCfr(cfr);
+        GetVesselEuFormatByCFRResponse response = null;
+        try {
+            response = port.getVesselPortType().getVesselEuFormatByCFR(getVesselEuFormatParam);
+        } catch (VesselException e) {
+            LOG.error("Could not get vessel in eu format, crf: " +  cfr, e.getMessage());
+        }
+        return response;
     }
 }
 

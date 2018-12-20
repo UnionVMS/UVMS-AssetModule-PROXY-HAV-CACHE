@@ -20,6 +20,7 @@ import se.havochvatten.service.client.equipmentws.v1_0.GetGearByIdResponse;
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCSResponse;
 import se.havochvatten.service.client.notificationws.v4_0.generalnotification.GearChangeNotificationType;
 import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListByIdResponse;
+import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByCFRResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselListByNationResponse;
 import se.havochvatten.service.client.vesselws.v2_1.vessel.Vessel;
 import se.havochvatten.vessel.proxy.cache.ClientProxy;
@@ -65,7 +66,8 @@ public class VesselServiceBean {
             try {
                 vesselAndOwnerListById = client.getVesselAndOwnerListById(vessel.getVesselId());
                 Validate.validateGetVesselAndOwnerListByIdResponse(vesselAndOwnerListById);
-                AssetBO assetBo = ResponseMapper.mapToAsset(vesselAndOwnerListById);
+                GetVesselEuFormatByCFRResponse vesselEuFormat = client.getVesselEuFormatByCFR(vessel.getCfr());
+                AssetBO assetBo = ResponseMapper.mapToAsset(vesselAndOwnerListById, vesselEuFormat);
                 GetGearChangeNotificationListByVesselIRCSResponse gearType = client.getGearTypeByIRCS(vesselAndOwnerListById.getVessel().getIrcs());
                 setGearTypeInformation(assetBo.getAsset(), gearType);
                 //TODO: Remove when we know how to get this gear type

@@ -22,12 +22,14 @@ import se.havochvatten.service.client.vesselcompws.v2_0.orgpers.OrganisationType
 import se.havochvatten.service.client.vesselcompws.v2_0.orgpers.RolePersonType;
 import se.havochvatten.service.client.vesselcompws.v2_0.vessel.OwnerType;
 import se.havochvatten.service.client.vesselcompws.v2_0.vessel.Vessel;
+import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByCFRResponse;
+import se.havochvatten.service.client.vesselws.v2_1.vessel.VesselEuFormatType;
 
 public class ResponseMapper {
     
     private ResponseMapper() {};
 
-    public static AssetBO mapToAsset(GetVesselAndOwnerListByIdResponse vesselAndOwnerListByIdResponse){
+    public static AssetBO mapToAsset(GetVesselAndOwnerListByIdResponse vesselAndOwnerListByIdResponse, GetVesselEuFormatByCFRResponse vesselEuFormat){
 
         AssetBO assetBo = new AssetBO();
         
@@ -50,6 +52,21 @@ public class ResponseMapper {
         asset.setHasLicence(vessel.isHasLicense());
         asset.setHasVms(vessel.isHasVms());
 
+        if (vesselEuFormat != null) {
+            VesselEuFormatType vesselEu = vesselEuFormat.getVesselEuFormat();
+            if (vesselEu != null) {
+                if (vesselEu.getIdentification() != null && vesselEu.getIdentification().getMmsi() != null) {
+                    asset.setMmsi(vesselEu.getIdentification().getMmsi().toString());
+                }
+                if (vesselEu.getConstruction() != null) {
+                    if (vesselEu.getConstruction().getYearOfConstruction() != null) {
+                        asset.setConstructionYear(vesselEu.getConstruction().getYearOfConstruction().toString());
+                    }
+                    asset.setConstructionPlace(vesselEu.getConstruction().getPlaceOfConstruction());
+                }
+            }
+        }
+        
         assetBo.setAsset(asset);
         
         List<ContactInfo> contacts = new ArrayList<>();
@@ -64,6 +81,8 @@ public class ResponseMapper {
                 contactInfo = mapToContactInfo(rolePerson);
             } else if (organisation != null) {
                 contactInfo = mapToContactInfo(organisation);
+                asset.setProdOrgCode(organisation.getOrgNumber());
+                asset.setProdOrgName(organisation.getOrganisationAdress().getOrgName());
             }
             contacts.add(contactInfo);
         }

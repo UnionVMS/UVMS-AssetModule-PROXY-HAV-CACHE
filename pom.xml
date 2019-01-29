@@ -20,7 +20,7 @@
     <properties>
         <maven-release-plugin>2.5.3</maven-release-plugin>
 
-        <asset.model.version>6.0.15</asset.model.version>
+        <asset.model.version>6.0.26</asset.model.version>
         <uvms.common.version>3.0.29</uvms.common.version>
 
         <vessel.client.version>2.1.20</vessel.client.version>

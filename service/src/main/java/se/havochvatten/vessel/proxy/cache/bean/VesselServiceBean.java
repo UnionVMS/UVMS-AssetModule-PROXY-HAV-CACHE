@@ -47,16 +47,9 @@ public class VesselServiceBean {
     @EJB
     private ParameterService parameterService;
 
-    public List<Vessel> getVesselList(List<String> nations) throws ProxyException {
-        GetVesselListByNationResponse vesselListByNation;
-        List<Vessel> vessels = new ArrayList<>();
-        if (!nations.isEmpty()) {
-            for(String nation : nations){
-                vesselListByNation = client.getVesselListByNation(nation);
-                vessels.addAll(vesselListByNation.getVessel());
-            }
-        }
-        return vessels;
+    public List<Vessel> getVesselList(String nation) throws ProxyException {
+        GetVesselListByNationResponse vesselListByNation = client.getVesselListByNation(nation);
+        return vesselListByNation.getVessel();
     }
 
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
@@ -70,8 +63,6 @@ public class VesselServiceBean {
                 AssetBO assetBo = ResponseMapper.mapToAsset(vesselAndOwnerListById, vesselEuFormat);
                 GetGearChangeNotificationListByVesselIRCSResponse gearType = client.getGearTypeByIRCS(vesselAndOwnerListById.getVessel().getIrcs());
                 setGearTypeInformation(assetBo.getAsset(), gearType);
-                //TODO: Remove when we know how to get this gear type
-                assetBo.getAsset().setGearFishingType("PELAGIC");
                 assetClient.upsertAssetAsync(assetBo);
                 LOG.debug("Vessel id: " + vesselAndOwnerListById.getVessel().getVesselId() + " Owner: " + vesselAndOwnerListById.getOwner().size());
             } catch (ProxyException e) {
@@ -86,31 +77,30 @@ public class VesselServiceBean {
         }
     }
 
-    private void setGearTypeInformation(AssetDTO asset, GetGearChangeNotificationListByVesselIRCSResponse gearType) {
-        if (gearType.getGearChangeNotification().size() > 0) {
+    private void setGearTypeInformation(AssetDTO asset, GetGearChangeNotificationListByVesselIRCSResponse gearType) throws ProxyException {
+        if (gearType != null && !gearType.getGearChangeNotification().isEmpty()) {
             // Sort the gear types by latest date
             Collections.sort(gearType.getGearChangeNotification(), new GearChangeNotificationTypeComparator());
             GearChangeNotificationType gearChangeNotificationType = gearType.getGearChangeNotification().get(0);
-            asset.setMainFishingGearCode(getGearTypeCode(gearChangeNotificationType.getGearCode()));
+            GetGearByIdResponse gearTypeByCode = getGearTypeByCode(gearChangeNotificationType);
+            if (gearTypeByCode != null) {
+                asset.setMainFishingGearCode(gearTypeByCode.getGear().getFaoCode());
+                asset.setGearFishingType(gearTypeByCode.getGear().getGearType().getNameEng());
+            } else {
+                asset.setGearFishingType("Unknown");
+            }
+        } else {
+            asset.setGearFishingType("Unknown");
         }
     }
 
-    private String getGearTypeCode(Long id) {
-        String gearTypeInfo = null;
-        GetGearByIdResponse gearTypeByCode;
-        if(id == null){
-            LOG.error("Gear type id cannot be null");
-        }else {
-            try {
-                gearTypeByCode = client.getGearTypeByCode(BigInteger.valueOf(id));
-                if (gearTypeByCode != null) {
-                    gearTypeInfo = gearTypeByCode.getGear().getFaoCode();
-                }
-            } catch (ProxyException e) {
-                LOG.error("Could not set gear type");
-            }
+    private GetGearByIdResponse getGearTypeByCode(GearChangeNotificationType gearChangeNotificationType)
+            throws ProxyException {
+        try {
+            return client.getGearTypeByCode(BigInteger.valueOf(gearChangeNotificationType.getGearCode()));
+        } catch (Exception e) {
+            return null;
         }
-        return gearTypeInfo;
     }
 
     public List<String> getNationsFromDatabase(){

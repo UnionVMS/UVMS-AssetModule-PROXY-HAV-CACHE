@@ -79,13 +79,12 @@ public class ClientProxyBean implements ClientProxy {
     public GetGearChangeNotificationListByVesselIRCSResponse getGearTypeByIRCS(String ircs) throws ProxyException {
         GeneralNotificationPortType generalNotificationPortType = port.getGeneralNotificationPortType();
         GetGearChangeNotificationListByVesselIRCS gearChangeNotificationListByVesselIRCS = new GetGearChangeNotificationListByVesselIRCS();
-        GetGearChangeNotificationListByVesselIRCSResponse response;
+        GetGearChangeNotificationListByVesselIRCSResponse response = null;
         gearChangeNotificationListByVesselIRCS.setIrcs(ircs);
         try {
              response = generalNotificationPortType.getGearChangeNotificationListByVesselIRCS(gearChangeNotificationListByVesselIRCS);
         } catch (NotificationException e) {
             LOG.error("Could not get gertypes for vessel with ircs: " + ircs, e.getMessage());
-            throw new ProxyException("Could not get gertypes for vessel with ircs: " + ircs);
         }
         return response;
     }
@@ -95,12 +94,11 @@ public class ClientProxyBean implements ClientProxy {
     public GetGearByIdResponse getGearTypeByCode(BigInteger id) throws ProxyException {
         GetGearById getGearById = new GetGearById();
         getGearById.setId(id);
-        GetGearByIdResponse gearById;
+        GetGearByIdResponse gearById = null;
         try {
             gearById = port.getEquipmentPortType().getGearById(getGearById);
         } catch (EquipmentException e) {
             LOG.error("Could not get gear type information, gear type id: " +  id, e.getMessage());
-            throw new ProxyException("Could not get gear type information, gear type id: " +  id);
         }
         return gearById;
     }

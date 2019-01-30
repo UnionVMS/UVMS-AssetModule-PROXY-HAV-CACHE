@@ -98,7 +98,9 @@ public class ResponseMapper {
         assetContact.setPhoneNumber(rolePerson.getHomePhone() != null ? rolePerson.getHomePhone().getTelephoneNumber() : rolePerson.getMobilePhone().getTelephoneNumber());
         assetContact.setName(rolePerson.getPersonAdress().getName().getGivenname() + " " + rolePerson.getPersonAdress().getName().getSurname());
         assetContact.setStreetName(rolePerson.getPersonAdress().getStreet());
+        assetContact.setZipCode(rolePerson.getPersonAdress().getZipcode() != null ? rolePerson.getPersonAdress().getZipcode().toString() : null);
         assetContact.setCityName(rolePerson.getPersonAdress().getCity());
+        
         return assetContact;
     }
 
@@ -109,6 +111,7 @@ public class ResponseMapper {
         assetContact.setName(organisationType.getOrganisationAdress().getOrgName());
         assetContact.setPhoneNumber(organisationType.getPhone1()!=null ? organisationType.getPhone1().getTelephoneNumber() : null);
         assetContact.setStreetName(organisationType.getOrganisationAdress().getStreet());
+        assetContact.setZipCode(organisationType.getOrganisationAdress().getZipcode() != null ? organisationType.getOrganisationAdress().getZipcode().toString() : null);
         assetContact.setCityName(organisationType.getOrganisationAdress().getCity());
         return assetContact;
     }

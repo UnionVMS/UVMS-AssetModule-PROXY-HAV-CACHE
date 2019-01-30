@@ -33,7 +33,7 @@ public class GearTypesServiceBean {
     private static final Logger LOG = LoggerFactory.getLogger(GearTypesServiceBean.class);
     
     private static final String GEAR = "FISHING_GEAR";
-    private static final String GEAR_TYPE = "FISHING_GEAR_TYPE";
+    private static final String GEAR_TYPE = "FISHING_TYPE";
     private static final String GEAR_GROUP = "FISHING_GEAR_GROUP";
 
     @EJB

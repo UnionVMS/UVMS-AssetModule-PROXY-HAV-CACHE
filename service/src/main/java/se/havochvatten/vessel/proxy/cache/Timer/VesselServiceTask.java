@@ -31,15 +31,17 @@ public class VesselServiceTask implements Runnable{
 
     @Override
     public void run() {
-        LOG.debug(" VesselServiceTask run!");
+        LOG.info(" VesselServiceTask run!");
         try {
             long start = System.currentTimeMillis();
             List<String> nations = vesselServiceBean.getNationsFromDatabase();
-            List<Vessel> vesselList;
-            vesselList = vesselServiceBean.getVesselList(nations);
-            vesselServiceBean.sendVesselAndOwnerInfoToAssetModule(vesselList);
+            for (String nation : nations) {
+                List<Vessel> vesselList = vesselServiceBean.getVesselList(nation);
+                LOG.info("Found {} assets for nation: {}", vesselList.size(), nation);
+                vesselServiceBean.sendVesselAndOwnerInfoToAssetModule(vesselList);
+            }
             long tot = System.currentTimeMillis() - start;
-            LOG.debug("--------------- VesselServiceTask total time " +  tot +" ms      -------------");
+            LOG.info("--------------- VesselServiceTask total time " +  tot +" ms      -------------");
         } catch (ProxyException e) {
             LOG.error(e.getMessage());
         }

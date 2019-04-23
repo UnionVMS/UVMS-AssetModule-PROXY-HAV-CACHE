@@ -48,6 +48,7 @@ public class ResponseMapper {
         asset.setIrcs(vessel.getIrcs());
         asset.setIrcsIndicator(vessel.getIrcs() != null);
         asset.setSource("NATIONAL");
+        asset.setUpdatedBy("HAV VESSEL PROXY CACHE");
         asset.setPowerOfMainEngine(vessel.getEnginePower() != null ? vessel.getEnginePower().doubleValue() : null);
         asset.setHasLicence(vessel.isHasLicense());
         asset.setHasVms(vessel.isHasVms());

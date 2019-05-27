@@ -52,6 +52,7 @@ public class ResponseMapper {
         asset.setPowerOfMainEngine(vessel.getEnginePower() != null ? vessel.getEnginePower().doubleValue() : null);
         asset.setHasLicence(vessel.isHasLicense());
         asset.setHasVms(vessel.isHasVms());
+        asset.setVesselType("Fishing");
 
         if (vesselEuFormat != null) {
             VesselEuFormatType vesselEu = vesselEuFormat.getVesselEuFormat();

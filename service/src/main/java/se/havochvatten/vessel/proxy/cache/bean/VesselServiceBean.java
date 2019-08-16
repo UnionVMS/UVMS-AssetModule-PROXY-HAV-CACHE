@@ -10,12 +10,12 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.jms.JMSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import eu.europa.ec.fisheries.uvms.asset.client.AssetClient;
 import eu.europa.ec.fisheries.uvms.asset.client.model.AssetBO;
 import eu.europa.ec.fisheries.uvms.asset.client.model.AssetDTO;
-import eu.europa.ec.fisheries.uvms.commons.message.api.MessageException;
 import se.havochvatten.service.client.equipmentws.v1_0.GetGearByIdResponse;
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCSResponse;
 import se.havochvatten.service.client.notificationws.v4_0.generalnotification.GearChangeNotificationType;
@@ -69,7 +69,7 @@ public class VesselServiceBean {
                 LOG.error("Could not get additional info for vessel with id: {}", vessel.getVesselId());
             } catch (ValidationException e) {
                 LOG.error(e.getMessage());
-            } catch (MessageException e) {
+            } catch (JMSException e) {
                 LOG.error("Could not send message to Asset. Vessel: {}", vessel.getVesselId());
             } catch (Exception e) {
                 LOG.error("Exception occured when sending vessels to Asset", e);

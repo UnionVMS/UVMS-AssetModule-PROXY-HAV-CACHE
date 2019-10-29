@@ -12,7 +12,11 @@ copy of the GNU General Public License along with the IFDM Suite. If not, see <h
 
 package se.havochvatten.vessel.proxy.cache.bean;
 
-import org.slf4j.LoggerFactory;
+import java.util.Map;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.inject.Inject;
+import javax.xml.ws.BindingProvider;
 import se.havochvatten.service.client.equipmentws.v1_0.EquipmentPortType;
 import se.havochvatten.service.client.equipmentws.v1_0.EquipmentService;
 import se.havochvatten.service.client.notificationws.v4_0.GeneralNotificationPortType;
@@ -21,31 +25,21 @@ import se.havochvatten.service.client.vesselcompws.v2_0.VesselCompPortType;
 import se.havochvatten.service.client.vesselcompws.v2_0.VesselCompService;
 import se.havochvatten.service.client.vesselws.v2_1.VesselPortType;
 import se.havochvatten.service.client.vesselws.v2_1.VesselService;
-import se.havochvatten.vessel.proxy.cache.ParameterService;
 import se.havochvatten.vessel.proxy.cache.constant.ParameterKey;
-import se.havochvatten.vessel.proxy.cache.exception.ProxyException;
-
-import javax.ejb.EJB;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.xml.ws.BindingProvider;
-import java.util.Map;
 
 @Singleton
 @Startup
 public class PortInitiatorServiceBean {
-
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(PortInitiatorServiceBean.class);
 
     private VesselPortType vesselPortType;
     private VesselCompPortType vesselCompServicePortType;
     private GeneralNotificationPortType generalNotificationPortType;
     private EquipmentPortType equipmentPortType;
 
-    @EJB
-    private ParameterService parameterService;
+    @Inject
+    private ParameterServiceBean parameterService;
 
-    private void setupVesselPortType() throws ProxyException {
+    private void setupVesselPortType() {
         VesselService vesselService = new VesselService();
         vesselPortType = vesselService.getVesselPortType();
         BindingProvider bp = (BindingProvider) vesselPortType;
@@ -56,7 +50,7 @@ public class PortInitiatorServiceBean {
 
     }
 
-    public VesselPortType getVesselPortType() throws ProxyException {
+    public VesselPortType getVesselPortType() {
         if(vesselPortType == null){
             setupVesselPortType();
         }
@@ -67,7 +61,7 @@ public class PortInitiatorServiceBean {
         this.vesselPortType = vesselPortType;
     }
 
-    private void setupVesselCompPortType() throws ProxyException {
+    private void setupVesselCompPortType() {
         VesselCompService vesselService = new VesselCompService();
         vesselCompServicePortType = vesselService.getVesselCompPortType();
         BindingProvider bp = (BindingProvider) vesselCompServicePortType;
@@ -79,7 +73,7 @@ public class PortInitiatorServiceBean {
 
     }
 
-    private void setupGeneralNotificationPortType(){
+    private void setupGeneralNotificationPortType() {
         GeneralNotificationService generalNotificationService = new GeneralNotificationService();
         generalNotificationPortType = generalNotificationService.getGeneralNotificationPortType();
         BindingProvider bp = (BindingProvider) generalNotificationPortType;
@@ -88,7 +82,7 @@ public class PortInitiatorServiceBean {
         context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
     }
 
-    private void setupEquipmentPortType(){
+    private void setupEquipmentPortType() {
         EquipmentService equipmentService = new EquipmentService();
         equipmentPortType = equipmentService.getEquipmentPortType();
         BindingProvider bp = (BindingProvider) equipmentPortType;
@@ -97,7 +91,7 @@ public class PortInitiatorServiceBean {
         context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
     }
 
-    public VesselCompPortType getVesselCompServicePortType() throws ProxyException {
+    public VesselCompPortType getVesselCompServicePortType() {
         if(vesselCompServicePortType == null){
             setupVesselCompPortType();
         }

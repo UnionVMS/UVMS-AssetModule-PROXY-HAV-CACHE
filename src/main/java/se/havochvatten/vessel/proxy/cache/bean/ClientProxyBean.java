@@ -11,8 +11,16 @@ copy of the GNU General Public License along with the IFDM Suite. If not, see <h
  */
 package se.havochvatten.vessel.proxy.cache.bean;
 
+import java.math.BigInteger;
+import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import org.slf4j.LoggerFactory;
-import se.havochvatten.service.client.equipmentws.v1_0.*;
+import se.havochvatten.service.client.equipmentws.v1_0.EquipmentException;
+import se.havochvatten.service.client.equipmentws.v1_0.EquipmentPortType;
+import se.havochvatten.service.client.equipmentws.v1_0.GetGearById;
+import se.havochvatten.service.client.equipmentws.v1_0.GetGearByIdResponse;
+import se.havochvatten.service.client.equipmentws.v1_0.GetGears;
+import se.havochvatten.service.client.equipmentws.v1_0.GetGearsResponse;
 import se.havochvatten.service.client.notificationws.v4_0.GeneralNotificationPortType;
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCS;
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCSResponse;
@@ -20,63 +28,50 @@ import se.havochvatten.service.client.notificationws.v4_0.NotificationException;
 import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListById;
 import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListByIdResponse;
 import se.havochvatten.service.client.vesselcompws.v2_0.VesselCompPortType;
+import se.havochvatten.service.client.vesselws.v2_1.GetVesselByCFR;
+import se.havochvatten.service.client.vesselws.v2_1.GetVesselByCFRResponse;
+import se.havochvatten.service.client.vesselws.v2_1.GetVesselByIRCS;
+import se.havochvatten.service.client.vesselws.v2_1.GetVesselByIRCSResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByCFR;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByCFRResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselListByNation;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselListByNationResponse;
 import se.havochvatten.service.client.vesselws.v2_1.VesselException;
-import se.havochvatten.vessel.proxy.cache.ClientProxy;
-import se.havochvatten.vessel.proxy.cache.exception.ProxyException;
 import se.havochvatten.vessel.proxy.cache.mapper.RequestMapper;
 
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import java.math.BigInteger;
-
 @Stateless
-public class ClientProxyBean implements ClientProxy {
+public class ClientProxyBean {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ClientProxyBean.class);
 
     @EJB
     PortInitiatorServiceBean port;
 
-    @Override
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public GetVesselListByNationResponse getVesselListByNation(String iso3AlphaNation) throws ProxyException {
-        GetVesselListByNationResponse vesselListByNationResponse;
+    public GetVesselListByNationResponse getVesselListByNation(String iso3AlphaNation) throws VesselException {
         GetVesselListByNation getVesselListByNation = RequestMapper.mapToGetVesselListByNation(iso3AlphaNation);
-        try {
-            vesselListByNationResponse = port.getVesselPortType().getVesselListByNation(getVesselListByNation);
-        } catch (VesselException e) {
-            LOG.error("Fail to call web service to get all Vessels by nation; " + iso3AlphaNation, e.getMessage());
-            throw new ProxyException("Fail to call web service to get all Vessels by nation; " + iso3AlphaNation);
-        }
-        return vesselListByNationResponse;
+        return port.getVesselPortType().getVesselListByNation(getVesselListByNation);
+    }
+    
+    public GetVesselByIRCSResponse getVesselByIrcs(String ircs) throws VesselException {
+        GetVesselByIRCS request = new GetVesselByIRCS();
+        request.setIrcs(ircs);
+        return port.getVesselPortType().getVesselByIRCS(request);
+    }
+    
+    public GetVesselByCFRResponse getVesselByCfr(String cfr) throws VesselException {
+        GetVesselByCFR request = new GetVesselByCFR();
+        request.setCfr(cfr);
+        return port.getVesselPortType().getVesselByCFR(request);
     }
 
-    @Override
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public GetVesselAndOwnerListByIdResponse getVesselAndOwnerListById(String id) throws ProxyException {
+    public GetVesselAndOwnerListByIdResponse getVesselAndOwnerListById(String id) throws se.havochvatten.service.client.vesselcompws.v2_0.VesselException {
         GetVesselAndOwnerListById getVesselAndOwnerListById = RequestMapper.mapToGetVesselAndOwnerListById(id);
-        GetVesselAndOwnerListByIdResponse vesselAndOwnerListById;
         VesselCompPortType vesselCompServicePortType = port.getVesselCompServicePortType();
 
-        try {
-            vesselAndOwnerListById = vesselCompServicePortType.getVesselAndOwnerListById(getVesselAndOwnerListById);
-        } catch (se.havochvatten.service.client.vesselcompws.v2_0.VesselException e) {
-            LOG.error("Fail to call web service to get complement info for Vessel id: ; " + id);
-            throw new ProxyException("Fail to call web service to get complement info for Vessel id: ; " + id);
-        }
-
-        return vesselAndOwnerListById;
+        return vesselCompServicePortType.getVesselAndOwnerListById(getVesselAndOwnerListById);
     }
 
-    @Override
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public GetGearChangeNotificationListByVesselIRCSResponse getGearTypeByIRCS(String ircs) throws ProxyException {
+    public GetGearChangeNotificationListByVesselIRCSResponse getGearTypeByIRCS(String ircs) {
         GeneralNotificationPortType generalNotificationPortType = port.getGeneralNotificationPortType();
         GetGearChangeNotificationListByVesselIRCS gearChangeNotificationListByVesselIRCS = new GetGearChangeNotificationListByVesselIRCS();
         GetGearChangeNotificationListByVesselIRCSResponse response = null;
@@ -84,48 +79,43 @@ public class ClientProxyBean implements ClientProxy {
         try {
              response = generalNotificationPortType.getGearChangeNotificationListByVesselIRCS(gearChangeNotificationListByVesselIRCS);
         } catch (NotificationException e) {
-            LOG.error("Could not get gertypes for vessel with ircs: " + ircs, e.getMessage());
+            LOG.warn("Could not get gear types for vessel with ircs: {}", ircs, e.getMessage());
         }
         return response;
     }
 
-    @Override
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public GetGearByIdResponse getGearTypeByCode(BigInteger id) throws ProxyException {
+    public GetGearByIdResponse getGearTypeByCode(BigInteger id) {
         GetGearById getGearById = new GetGearById();
         getGearById.setId(id);
         GetGearByIdResponse gearById = null;
         try {
             gearById = port.getEquipmentPortType().getGearById(getGearById);
         } catch (EquipmentException e) {
-            LOG.error("Could not get gear type information, gear type id: " +  id, e.getMessage());
+            LOG.warn("Could not get gear type information, gear type id: {}", id, e.getMessage());
         }
         return gearById;
     }
 
-    @Override
-    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-    public GetGearsResponse getGearTypeList(){
+    public GetGearsResponse getGearTypeList() {
         GetGears getGearsRequest = new GetGears();
         GetGearsResponse gears = null;
         EquipmentPortType equipmentPortType = port.getEquipmentPortType();
         try {
             gears = equipmentPortType.getGears(getGearsRequest);
         } catch (EquipmentException e) {
-            LOG.error("Could not get gear type list", e);
+            LOG.warn("Could not get gear type list", e);
         }
         return gears;
     }
 
-    @Override
-    public GetVesselEuFormatByCFRResponse getVesselEuFormatByCFR(String cfr) throws ProxyException {
+    public GetVesselEuFormatByCFRResponse getVesselEuFormatByCFR(String cfr) {
         GetVesselEuFormatByCFR getVesselEuFormatParam = new GetVesselEuFormatByCFR();
         getVesselEuFormatParam.setCfr(cfr);
         GetVesselEuFormatByCFRResponse response = null;
         try {
             response = port.getVesselPortType().getVesselEuFormatByCFR(getVesselEuFormatParam);
         } catch (VesselException e) {
-            LOG.error("Could not get vessel in eu format, crf: " +  cfr, e.getMessage());
+            LOG.warn("Could not get vessel in eu format, crf: {}", cfr, e.getMessage());
         }
         return response;
     }

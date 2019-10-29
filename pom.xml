@@ -16,12 +16,12 @@
     <name>${project.artifactId}</name>
     
     <properties>
-        <asset.model.version>6.0.59</asset.model.version>
-        <uvms.common.version>3.0.29</uvms.common.version>
+        <asset.model.version>6.2.2</asset.model.version>
+        <uvms.common.version>4.0.7</uvms.common.version>
 
-        <vessel.client.version>2.1.20</vessel.client.version>
+        <vessel.client.version>2.1.29</vessel.client.version>
         <vessel.comp.client.version>2.0.3</vessel.comp.client.version>
-        <notification.client.version>4.0.31</notification.client.version>
+        <notification.client.version>4.0.32</notification.client.version>
         <equipment.client.version>1.0.2</equipment.client.version>
 
 		<application.groupid>${project.groupId}</application.groupid> 
@@ -31,7 +31,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <project.scm.id>github</project.scm.id>
-    	<release.branch.name>uvms-3.0.0-boba-fett</release.branch.name>
     </properties>
     
     <dependencies>
@@ -91,7 +90,7 @@
     </scm>
     
     <build>
-        <finalName>${project.name}-${project.version}</finalName>
+        <finalName>${project.name}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import eu.europa.ec.fisheries.uvms.asset.client.AssetClient;
@@ -25,7 +26,6 @@ import eu.europa.ec.fisheries.uvms.asset.client.model.CustomCodesPK;
 import se.havochvatten.service.client.equipmentws.v1_0.GetGearsResponse;
 import se.havochvatten.service.client.equipmentws.v1_0.error.GearType;
 import se.havochvatten.service.client.equipmentws.v1_0.error.GearTypeType;
-import se.havochvatten.vessel.proxy.cache.ClientProxy;
 
 @Stateless
 public class GearTypesServiceBean {
@@ -39,8 +39,8 @@ public class GearTypesServiceBean {
     @EJB
     private AssetClient assetClient;
 
-    @EJB
-    private ClientProxy clientProxyBean;
+    @Inject
+    private ClientProxyBean clientProxyBean;
 
     public void updateGearTypes(){
         try {
@@ -61,7 +61,7 @@ public class GearTypesServiceBean {
             createGearGroupIfNotExists(gearType.getGearGroup());
             createFishingGear(gearType);
         } catch (Exception e) {
-            LOG.error("Could not create gear {} due to {}", gearType.getFaoCode(), e.getMessage());
+            LOG.error("Could not create gear {}", gearType.getFaoCode(), e);
         }
     }
 

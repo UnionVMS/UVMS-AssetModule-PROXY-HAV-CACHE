@@ -10,15 +10,13 @@ FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more d
 copy of the GNU General Public License along with the IFDM Suite. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package se.havochvatten.vessel.proxy.cache.Timer;
-
+package se.havochvatten.vessel.proxy.cache.timer;
 
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.havochvatten.service.client.vesselws.v2_1.vessel.Vessel;
 import se.havochvatten.vessel.proxy.cache.bean.VesselServiceBean;
-import se.havochvatten.vessel.proxy.cache.exception.ProxyException;
 
 public class VesselServiceTask implements Runnable{
 
@@ -38,11 +36,11 @@ public class VesselServiceTask implements Runnable{
             for (String nation : nations) {
                 List<Vessel> vesselList = vesselServiceBean.getVesselList(nation);
                 LOG.info("Found {} assets for nation: {}", vesselList.size(), nation);
-                vesselServiceBean.sendVesselAndOwnerInfoToAssetModule(vesselList);
+                vesselServiceBean.enrichVesselsAndSendToAsset(vesselList);
             }
             long tot = System.currentTimeMillis() - start;
             LOG.info("--------------- VesselServiceTask total time " +  tot +" ms      -------------");
-        } catch (ProxyException e) {
+        } catch (Exception e) {
             LOG.error(e.getMessage());
         }
 

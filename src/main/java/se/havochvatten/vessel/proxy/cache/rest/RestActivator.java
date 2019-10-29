@@ -9,14 +9,11 @@ the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the impl
 FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details. You should have received a
 copy of the GNU General Public License along with the IFDM Suite. If not, see <http://www.gnu.org/licenses/>.
  */
-package se.havochvatten.vessel.proxy.cache;
+package se.havochvatten.vessel.proxy.cache.rest;
 
-import javax.ejb.Local;
-import se.havochvatten.vessel.proxy.cache.constant.ParameterKey;
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
 
-@Local
-public interface ParameterService {
-
-    String getParameterValue(ParameterKey key);
-
+@ApplicationPath("/rest")
+public class RestActivator extends Application {
 }

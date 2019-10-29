@@ -1,4 +1,4 @@
-package se.havochvatten.vessel.proxy.cache.exception;
+package se.havochvatten.vessel.proxy.cache.utils;
 /*
 ﻿Developed with the contribution of the European Commission - Directorate General for Maritime Affairs and Fisheries
 © European Union, 2015-2016.
@@ -11,13 +11,22 @@ FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more d
 copy of the GNU General Public License along with the IFDM Suite. If not, see <http://www.gnu.org/licenses/>.
  */
 
-public class ValidationException extends Exception {
+import se.havochvatten.service.client.notificationws.v4_0.generalnotification.GearChangeNotificationType;
 
-    public ValidationException(){
-        super();
-    }
+import java.util.Comparator;
 
-    public ValidationException(String message){
-        super(message);
+public class GearChangeNotificationTypeComparator implements Comparator<GearChangeNotificationType> {
+
+    @Override
+    public int compare(GearChangeNotificationType o1, GearChangeNotificationType o2) {
+        if(o1 == null && o2 == null){
+            return 0;
+        }else if(o1 == null && o2!=null){
+            return 1;
+        }else if(o1!= null && o2 == null){
+            return -1;
+        }else{
+            return o2.getStartTime().compare(o1.getStartTime());
+        }
     }
 }

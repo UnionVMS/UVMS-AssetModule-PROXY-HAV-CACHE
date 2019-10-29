@@ -4,22 +4,18 @@
     <parent>
         <groupId>fish.focus.uvms.maven</groupId>
         <artifactId>uvms-pom</artifactId>
+        <version>2.2</version>
         <relativePath />
-        <version>1.19</version>
     </parent>
     
     <groupId>se.havochvatten.vessel.proxy.cache</groupId>
     <artifactId>hav-vessel-proxy-cache</artifactId>
     <version>3.0.7-SNAPSHOT</version>
-    
-    <packaging>pom</packaging>
-    
+    <packaging>war</packaging>
     
     <name>${project.artifactId}</name>
     
     <properties>
-        <maven-release-plugin>2.5.3</maven-release-plugin>
-
         <asset.model.version>6.0.59</asset.model.version>
         <uvms.common.version>3.0.29</uvms.common.version>
 
@@ -28,60 +24,91 @@
         <notification.client.version>4.0.31</notification.client.version>
         <equipment.client.version>1.0.2</equipment.client.version>
 
+		<application.groupid>${project.groupId}</application.groupid> 
+        <application.version>${project.version}</application.version>
+        <application.logfile>/app/logs/${project.artifactId}/${project.artifactId}.log</application.logfile>
+        <application.error.logfile>/app/logs/${project.artifactId}/${project.artifactId}-error.log</application.error.logfile>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
         <project.scm.id>github</project.scm.id>
     	<release.branch.name>uvms-3.0.0-boba-fett</release.branch.name>
     </properties>
     
     <dependencies>
         <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
-            <version>7.0</version>
+            <groupId>jakarta.platform</groupId>
+            <artifactId>jakarta.jakartaee-api</artifactId>
             <scope>provided</scope>
         </dependency>
 
 		<dependency>
 			<groupId>fish.focus.uvms.maven</groupId>
 			<artifactId>uvms-pom-logging-deps</artifactId>
-			<version>1.19</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>fish.focus.uvms.maven</groupId>
 			<artifactId>uvms-pom-test-deps</artifactId>
-			<version>1.19</version>
 			<type>pom</type>
 		</dependency>
+		
+        <dependency>
+            <groupId>eu.europa.ec.fisheries.uvms.asset</groupId>
+            <artifactId>asset-client</artifactId>
+            <version>${asset.model.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>eu.europa.ec.fisheries.uvms.commons</groupId>
+            <artifactId>uvms-commons-message</artifactId>
+            <version>${uvms.common.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>se.havochvatten.service.client</groupId>
+            <artifactId>vessel-client-v2</artifactId>
+            <version>${vessel.client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>se.havochvatten.service.client</groupId>
+            <artifactId>vesselcomp-client-v2</artifactId>
+            <version>${vessel.comp.client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>se.havochvatten.service.client</groupId>
+            <artifactId>notification-client</artifactId>
+            <version>${notification.client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>se.havochvatten.service.client</groupId>
+            <artifactId>equipment-client</artifactId>
+            <version>${equipment.client.version}</version>
+        </dependency>
     </dependencies>
 
     <scm>
         <connection>scm:git:https://github.com/UnionVMS/UVMS-AssetModule-PROXY-HAV-CACHE.git</connection>
-      <tag>hav-vessel-proxy-cache-3.0.2</tag>
-  </scm>
-
+        <tag>hav-vessel-proxy-cache-3.0.2</tag>
+    </scm>
+    
     <build>
+        <finalName>${project.name}-${project.version}</finalName>
         <plugins>
             <plugin>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>${maven-release-plugin}</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.maven.scm</groupId>
-                        <artifactId>maven-scm-provider-gitexe</artifactId>
-                        <version>1.8.1</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <checkModificationExcludes>
-                        <checkModificationExclude>src/main/java/eu/europa/ec/fisheries/wsdl</checkModificationExclude>
-                    </checkModificationExcludes>
-                </configuration>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0-alpha-2</version>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>write-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <outputFile>${basedir}/src/main/resources/hav-vessel-proxy-cache.properties</outputFile>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
-    
-  <modules>
-    <module>module</module>
-    <module>service</module>
-  </modules>
 </project>

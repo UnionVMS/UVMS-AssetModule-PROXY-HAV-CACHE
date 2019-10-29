@@ -19,19 +19,17 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.havochvatten.vessel.proxy.cache.ParameterService;
 import se.havochvatten.vessel.proxy.cache.constant.ParameterKey;
 import se.havochvatten.vessel.proxy.cache.entity.Parameter;
 
 @Stateless
-public class ParameterServiceBean implements ParameterService {
+public class ParameterServiceBean {
 
     @PersistenceContext(unitName = "asset")
     EntityManager em;
 
-    final static Logger LOG = LoggerFactory.getLogger(ParameterServiceBean.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ParameterServiceBean.class);
 
-    @Override
     public String getParameterValue(ParameterKey key)  {
         try {
             Query query = em.createNamedQuery(Parameter.FIND_BY_NAME);
@@ -39,7 +37,7 @@ public class ParameterServiceBean implements ParameterService {
             Parameter entity = (Parameter) query.getSingleResult();
             return entity.getParamValue();
         }catch (NoResultException e){
-            LOG.error("Parameter is not found in database, key: " + key);
+            LOG.error("Parameter is not found in database, key: {}", key);
             throw e;
         }
     }

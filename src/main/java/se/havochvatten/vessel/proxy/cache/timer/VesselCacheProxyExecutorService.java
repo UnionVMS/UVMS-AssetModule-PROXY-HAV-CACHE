@@ -1,4 +1,4 @@
-package se.havochvatten.vessel.proxy.cache.Timer;
+package se.havochvatten.vessel.proxy.cache.timer;
 
 /*
 ﻿Developed with the contribution of the European Commission - Directorate General for Maritime Affairs and Fisheries

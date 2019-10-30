@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class VesselCacheProxyExecutorService {
 
     @EJB
-     private VesselServiceBean vesselServiceBean;
+    private VesselServiceBean vesselServiceBean;
 
     @EJB
     private GearTypesServiceBean gearTypesServiceBean;

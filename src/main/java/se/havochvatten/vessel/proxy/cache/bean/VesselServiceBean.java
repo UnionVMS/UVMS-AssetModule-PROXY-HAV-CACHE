@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import org.slf4j.Logger;
@@ -33,6 +35,9 @@ public class VesselServiceBean {
 
     @Inject
     ClientProxyBean client;
+    
+    @Inject
+    private PortServiceBean portService;
 
     @EJB
     private AssetClient assetClient;
@@ -51,6 +56,7 @@ public class VesselServiceBean {
         return vesselListByNation.getVessel();
     }
 
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void enrichVesselsAndSendToAsset(List<Vessel> vesselList)  {
         for (Vessel vessel : vesselList) {
             enrichVesselAndSendToAsset(vessel);
@@ -60,6 +66,8 @@ public class VesselServiceBean {
     public void enrichVesselAndSendToAsset(Vessel vessel) {
         try {
             AssetDTO asset = ResponseMapper.mapToAsset(vessel);
+            
+            asset.setPortOfRegistration(portService.getPorts().getOrDefault(asset.getPortOfRegistration(), asset.getPortOfRegistration()));
             
             GetVesselAndOwnerListByIdResponse owners = client.getVesselAndOwnerListById(vessel.getVesselId());
             List<ContactInfo> contacts = new ArrayList<>();
@@ -73,8 +81,10 @@ public class VesselServiceBean {
                 ResponseMapper.enrichAssetWithEuFormatInformation(asset, vesselEuFormat.getVesselEuFormat());
             }
             
-            GetGearChangeNotificationListByVesselIRCSResponse gearType = client.getGearTypeByIRCS(vessel.getIrcs());
-            setGearTypeInformation(asset, gearType);
+            if (vessel.getIrcs() != null) {
+                GetGearChangeNotificationListByVesselIRCSResponse gearType = client.getGearTypeByIRCS(vessel.getIrcs());
+                setGearTypeInformation(asset, gearType);
+            }
             
             assetClient.upsertAssetAsync(ResponseMapper.mapToAssetBO(asset, contacts));
         } catch (JMSException e) {

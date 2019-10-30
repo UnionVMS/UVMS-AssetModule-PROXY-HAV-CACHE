@@ -29,7 +29,7 @@ public class VesselServiceTask implements Runnable{
 
     @Override
     public void run() {
-        LOG.info(" VesselServiceTask run!");
+        LOG.info("VesselServiceTask run!");
         try {
             long start = System.currentTimeMillis();
             List<String> nations = vesselServiceBean.getNationsFromDatabase();
@@ -39,9 +39,9 @@ public class VesselServiceTask implements Runnable{
                 vesselServiceBean.enrichVesselsAndSendToAsset(vesselList);
             }
             long tot = System.currentTimeMillis() - start;
-            LOG.info("--------------- VesselServiceTask total time " +  tot +" ms      -------------");
+            LOG.info("--------------- VesselServiceTask total time {} s      -------------", tot / 1000);
         } catch (Exception e) {
-            LOG.error(e.getMessage());
+            LOG.error("Something went wrong in VesselServiceTask", e);
         }
 
     }

@@ -19,6 +19,8 @@ import javax.inject.Inject;
 import javax.xml.ws.BindingProvider;
 import se.havochvatten.service.client.equipmentws.v1_0.EquipmentPortType;
 import se.havochvatten.service.client.equipmentws.v1_0.EquipmentService;
+import se.havochvatten.service.client.geographyws.v2_0.GeographyPortType;
+import se.havochvatten.service.client.geographyws.v2_0.GeographyService;
 import se.havochvatten.service.client.notificationws.v4_0.GeneralNotificationPortType;
 import se.havochvatten.service.client.notificationws.v4_0.GeneralNotificationService;
 import se.havochvatten.service.client.vesselcompws.v2_0.VesselCompPortType;
@@ -31,10 +33,17 @@ import se.havochvatten.vessel.proxy.cache.constant.ParameterKey;
 @Startup
 public class PortInitiatorServiceBean {
 
+    private static final String VESSEL_PATH = "esb/Vessel/v2";
+    private static final String VESSEL_COMP_PATH = "esb/VesselComp/v2";
+    private static final String GENERAL_NOTIFICATION_PATH = "esb/GeneralNotification/v1";
+    private static final String EQUIPMENT_PATH = "esb/Equipment/v1";
+    private static final String GEOGRAPHY_PATH = "esb/Geography/v1";
+    
     private VesselPortType vesselPortType;
     private VesselCompPortType vesselCompServicePortType;
     private GeneralNotificationPortType generalNotificationPortType;
     private EquipmentPortType equipmentPortType;
+    private GeographyPortType geographyPortType;
 
     @Inject
     private ParameterServiceBean parameterService;
@@ -45,8 +54,7 @@ public class PortInitiatorServiceBean {
         BindingProvider bp = (BindingProvider) vesselPortType;
         Map<String, Object> context = bp.getRequestContext();
         String endpointAddress = parameterService.getParameterValue(ParameterKey.NATIONAL_SERVICE_ENDPOINT);
-        //LOG.debug("National endpoint vessel: " + endpointAddress);
-        context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
+        context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress + "/" + VESSEL_PATH);
 
     }
 
@@ -66,10 +74,8 @@ public class PortInitiatorServiceBean {
         vesselCompServicePortType = vesselService.getVesselCompPortType();
         BindingProvider bp = (BindingProvider) vesselCompServicePortType;
         Map<String, Object> context = bp.getRequestContext();
-        //String endpointAddress = "http://livmipl02p:8001/esb/VesselComp/v2"; /
-        String endpointAddress = parameterService.getParameterValue(ParameterKey.NATIONAL_VESSEL_COMP_SERVICE_ENDPOINT);
-        //LOG.debug("National endpoint vessel comp:" + endpointAddress);
-        context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
+        String endpointAddress = parameterService.getParameterValue(ParameterKey.NATIONAL_SERVICE_ENDPOINT);
+        context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress + "/" + VESSEL_COMP_PATH);
 
     }
 
@@ -78,8 +84,8 @@ public class PortInitiatorServiceBean {
         generalNotificationPortType = generalNotificationService.getGeneralNotificationPortType();
         BindingProvider bp = (BindingProvider) generalNotificationPortType;
         Map<String, Object> context = bp.getRequestContext();
-        String endpointAddress = parameterService.getParameterValue(ParameterKey.NATIONAL_GENERAL_NOTIFICATION_SERVICE_ENDPOINT);
-        context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
+        String endpointAddress = parameterService.getParameterValue(ParameterKey.NATIONAL_SERVICE_ENDPOINT);
+        context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress + "/" + GENERAL_NOTIFICATION_PATH);
     }
 
     private void setupEquipmentPortType() {
@@ -87,8 +93,8 @@ public class PortInitiatorServiceBean {
         equipmentPortType = equipmentService.getEquipmentPortType();
         BindingProvider bp = (BindingProvider) equipmentPortType;
         Map<String, Object> context = bp.getRequestContext();
-        String endpointAddress = parameterService.getParameterValue(ParameterKey.NATIONAL_EQUIPMENT_SERVICE_ENDPOINT);
-        context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress);
+        String endpointAddress = parameterService.getParameterValue(ParameterKey.NATIONAL_SERVICE_ENDPOINT);
+        context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress + "/" + EQUIPMENT_PATH);
     }
 
     public VesselCompPortType getVesselCompServicePortType() {
@@ -124,4 +130,24 @@ public class PortInitiatorServiceBean {
         this.equipmentPortType = equipmentPortType;
     }
 
+    private void setupGeographyPortType() {
+        GeographyService geographyService = new GeographyService();
+        geographyPortType = geographyService.getGeographyPortTypePort();
+        BindingProvider bp = (BindingProvider) geographyPortType;
+        Map<String, Object> context = bp.getRequestContext();
+        String endpointAddress = parameterService.getParameterValue(ParameterKey.NATIONAL_SERVICE_ENDPOINT);
+        context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress + "/" + GEOGRAPHY_PATH);
+
+    }
+
+    public GeographyPortType getGeographyPortType() {
+        if(geographyPortType == null){
+            setupGeographyPortType();
+        }
+        return geographyPortType;
+    }
+
+    public void setGeographyPortType(GeographyPortType geographyPortType){
+        this.geographyPortType = geographyPortType;
+    }
 }

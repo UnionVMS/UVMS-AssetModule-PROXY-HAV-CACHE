@@ -12,6 +12,8 @@ copy of the GNU General Public License along with the IFDM Suite. If not, see <h
 package se.havochvatten.vessel.proxy.cache.bean;
 
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,8 @@ import se.havochvatten.service.client.equipmentws.v1_0.GetGearById;
 import se.havochvatten.service.client.equipmentws.v1_0.GetGearByIdResponse;
 import se.havochvatten.service.client.equipmentws.v1_0.GetGears;
 import se.havochvatten.service.client.equipmentws.v1_0.GetGearsResponse;
+import se.havochvatten.service.client.geographyws.v2_0.GeographyException;
+import se.havochvatten.service.client.geographyws.v2_0.PortInformationType;
 import se.havochvatten.service.client.notificationws.v4_0.GeneralNotificationPortType;
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCS;
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCSResponse;
@@ -64,11 +68,16 @@ public class ClientProxyBean {
         return port.getVesselPortType().getVesselByCFR(request);
     }
 
-    public GetVesselAndOwnerListByIdResponse getVesselAndOwnerListById(String id) throws se.havochvatten.service.client.vesselcompws.v2_0.VesselException {
+    public GetVesselAndOwnerListByIdResponse getVesselAndOwnerListById(String id) {
         GetVesselAndOwnerListById getVesselAndOwnerListById = RequestMapper.mapToGetVesselAndOwnerListById(id);
         VesselCompPortType vesselCompServicePortType = port.getVesselCompServicePortType();
-
-        return vesselCompServicePortType.getVesselAndOwnerListById(getVesselAndOwnerListById);
+        GetVesselAndOwnerListByIdResponse response = null;
+        try {
+            response = vesselCompServicePortType.getVesselAndOwnerListById(getVesselAndOwnerListById);
+        } catch (se.havochvatten.service.client.vesselcompws.v2_0.VesselException e) {
+            LOG.warn("Could not get vessel and owner by id: {}", id, e);
+        }
+        return response;
     }
 
     public GetGearChangeNotificationListByVesselIRCSResponse getGearTypeByIRCS(String ircs) {
@@ -79,7 +88,7 @@ public class ClientProxyBean {
         try {
              response = generalNotificationPortType.getGearChangeNotificationListByVesselIRCS(gearChangeNotificationListByVesselIRCS);
         } catch (NotificationException e) {
-            LOG.warn("Could not get gear types for vessel with ircs: {}", ircs, e.getMessage());
+            LOG.warn("Could not get gear types for vessel with ircs: {}", ircs, e);
         }
         return response;
     }
@@ -91,7 +100,7 @@ public class ClientProxyBean {
         try {
             gearById = port.getEquipmentPortType().getGearById(getGearById);
         } catch (EquipmentException e) {
-            LOG.warn("Could not get gear type information, gear type id: {}", id, e.getMessage());
+            LOG.warn("Could not get gear type information, gear type id: {}", id, e);
         }
         return gearById;
     }
@@ -118,6 +127,10 @@ public class ClientProxyBean {
             LOG.warn("Could not get vessel in eu format, crf: {}", cfr, e.getMessage());
         }
         return response;
+    }
+    
+    public List<PortInformationType> getPorts() throws GeographyException {
+        return port.getGeographyPortType().getListPorts(Arrays.asList("SE"));
     }
 }
 

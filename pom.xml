@@ -16,7 +16,7 @@
     <name>${project.artifactId}</name>
     
     <properties>
-        <asset.model.version>6.2.2</asset.model.version>
+        <asset.model.version>6.2.6</asset.model.version>
         <uvms.common.version>4.0.7</uvms.common.version>
 
         <vessel.client.version>2.1.29</vessel.client.version>

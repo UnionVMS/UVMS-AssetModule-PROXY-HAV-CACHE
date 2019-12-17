@@ -37,12 +37,12 @@ public class PortServiceBean {
     private ClientProxyBean clientProxy;
     
     @PostConstruct
-    public void init() throws GeographyException {
+    public void init() {
         readPorts();
     }
     
     @Schedule(dayOfWeek = "0", hour = "1")
-    public void updatePorts() throws GeographyException {
+    public void updatePorts() {
         readPorts();
     }
     
@@ -50,10 +50,14 @@ public class PortServiceBean {
         return ports;
     }
     
-    private void readPorts() throws GeographyException {
-        List<PortInformationType> portInformation = clientProxy.getPorts();
-        LOG.info("Updating ports: found {} ports.", portInformation.size());
-        ports = portInformation.stream()
-            .collect(Collectors.toMap(PortInformationType::getPortCode, PortInformationType::getPortName, (port1, port2) -> port1));
+    private void readPorts() {
+        try {
+            List<PortInformationType> portInformation = clientProxy.getPorts();
+            LOG.info("Updating ports: found {} ports.", portInformation.size());
+            ports = portInformation.stream()
+                .collect(Collectors.toMap(PortInformationType::getPortCode, PortInformationType::getPortName, (port1, port2) -> port1));
+        } catch (GeographyException e) {
+            LOG.error("Could not import ports", e);
+        }
     }
 }

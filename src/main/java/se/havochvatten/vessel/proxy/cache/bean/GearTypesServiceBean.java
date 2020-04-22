@@ -11,7 +11,7 @@ copy of the GNU General Public License along with the IFDM Suite. If not, see <h
  */
 package se.havochvatten.vessel.proxy.cache.bean;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +66,7 @@ public class GearTypesServiceBean {
     }
 
     private void createFishingGear(GearType gearType) {
-        List<CustomCode> codes = assetClient.getCodeForDate(GEAR, gearType.getFaoCode(), OffsetDateTime.now());
+        List<CustomCode> codes = assetClient.getCodeForDate(GEAR, gearType.getFaoCode(), Instant.now());
         if (codes.isEmpty()) {
             CustomCode gear = new CustomCode();
             CustomCodesPK key = new CustomCodesPK(GEAR, gearType.getFaoCode());
@@ -81,7 +81,7 @@ public class GearTypesServiceBean {
     }
 
     private void createGearTypeIfNotExists(GearTypeType gearType) {
-        List<CustomCode> codes = assetClient.getCodeForDate(GEAR_TYPE, Integer.toString(gearType.getCode()), OffsetDateTime.now());
+        List<CustomCode> codes = assetClient.getCodeForDate(GEAR_TYPE, Integer.toString(gearType.getCode()), Instant.now());
         if (codes.isEmpty()) {
             CustomCode type = new CustomCode();
             CustomCodesPK key = new CustomCodesPK(GEAR_TYPE, Integer.toString(gearType.getCode()));
@@ -92,7 +92,7 @@ public class GearTypesServiceBean {
     }
     
     private void createGearGroupIfNotExists(GearTypeType gearGroup) {
-        List<CustomCode> codes = assetClient.getCodeForDate(GEAR_GROUP, Integer.toString(gearGroup.getCode()), OffsetDateTime.now());
+        List<CustomCode> codes = assetClient.getCodeForDate(GEAR_GROUP, Integer.toString(gearGroup.getCode()), Instant.now());
         if (codes.isEmpty()) {
             CustomCode group = new CustomCode();
             CustomCodesPK key = new CustomCodesPK(GEAR_GROUP, Integer.toString(gearGroup.getCode()));

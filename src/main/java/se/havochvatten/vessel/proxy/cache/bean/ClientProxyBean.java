@@ -36,8 +36,8 @@ import se.havochvatten.service.client.vesselws.v2_1.GetVesselByCFR;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselByCFRResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselByIRCS;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselByIRCSResponse;
-import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByCFR;
-import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByCFRResponse;
+import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByIRCS;
+import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByIRCSResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselListByNation;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselListByNationResponse;
 import se.havochvatten.service.client.vesselws.v2_1.VesselException;
@@ -117,14 +117,18 @@ public class ClientProxyBean {
         return gears;
     }
 
-    public GetVesselEuFormatByCFRResponse getVesselEuFormatByCFR(String cfr) {
-        GetVesselEuFormatByCFR getVesselEuFormatParam = new GetVesselEuFormatByCFR();
-        getVesselEuFormatParam.setCfr(cfr);
-        GetVesselEuFormatByCFRResponse response = null;
+    public GetVesselEuFormatByIRCSResponse getVesselEuFormatByIRCS(String ircs) {
+        if (ircs == null) {
+            return null;
+        }
+        String modifiedIrcs = ircs.replace("-", "");
+        GetVesselEuFormatByIRCS getVesselEuFormatParam = new GetVesselEuFormatByIRCS();
+        getVesselEuFormatParam.setIrcs(modifiedIrcs);
+        GetVesselEuFormatByIRCSResponse response = null;
         try {
-            response = port.getVesselPortType().getVesselEuFormatByCFR(getVesselEuFormatParam);
+            response = port.getVesselPortType().getVesselEuFormatByIRCS(getVesselEuFormatParam);
         } catch (VesselException e) {
-            LOG.warn("Could not get vessel in eu format, crf: {}", cfr, e.getMessage());
+            LOG.warn("Could not get vessel in eu format, ircs: {}, {}", modifiedIrcs, e.getMessage());
         }
         return response;
     }

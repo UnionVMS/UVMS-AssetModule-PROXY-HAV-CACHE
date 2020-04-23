@@ -20,7 +20,7 @@ import se.havochvatten.service.client.equipmentws.v1_0.GetGearByIdResponse;
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCSResponse;
 import se.havochvatten.service.client.notificationws.v4_0.generalnotification.GearChangeNotificationType;
 import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListByIdResponse;
-import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByCFRResponse;
+import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByIRCSResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselListByNationResponse;
 import se.havochvatten.service.client.vesselws.v2_1.VesselException;
 import se.havochvatten.service.client.vesselws.v2_1.vessel.Vessel;
@@ -76,7 +76,7 @@ public class VesselServiceBean {
                 contacts = ResponseMapper.mapToContactInfo(owners.getOwner());
             }
             
-            GetVesselEuFormatByCFRResponse vesselEuFormat = client.getVesselEuFormatByCFR(vessel.getCfr());
+            GetVesselEuFormatByIRCSResponse vesselEuFormat = client.getVesselEuFormatByIRCS(vessel.getIrcs());
             if (vesselEuFormat != null) {
                 ResponseMapper.enrichAssetWithEuFormatInformation(asset, vesselEuFormat.getVesselEuFormat());
             }

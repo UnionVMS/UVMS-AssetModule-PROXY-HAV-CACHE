@@ -64,6 +64,11 @@
             <version>${uvms.common.version}</version>
         </dependency>
         <dependency>
+            <groupId>eu.europa.ec.fisheries.uvms.commons</groupId>
+            <artifactId>uvms-commons-date</artifactId>
+            <version>${uvms.common.version}</version>
+        </dependency>
+        <dependency>
             <groupId>se.havochvatten.service.client</groupId>
             <artifactId>vessel-client-v2</artifactId>
             <version>${vessel.client.version}</version>

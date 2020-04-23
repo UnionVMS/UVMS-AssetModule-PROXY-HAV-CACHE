@@ -13,20 +13,21 @@ copy of the GNU General Public License along with the IFDM Suite. If not, see <h
 package se.havochvatten.vessel.proxy.cache.mapper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import eu.europa.ec.fisheries.uvms.asset.client.model.AssetBO;
 import eu.europa.ec.fisheries.uvms.asset.client.model.AssetDTO;
 import eu.europa.ec.fisheries.uvms.asset.client.model.ContactInfo;
-import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListByIdResponse;
 import se.havochvatten.service.client.vesselcompws.v2_0.orgpers.OrganisationType;
 import se.havochvatten.service.client.vesselcompws.v2_0.orgpers.RolePersonType;
 import se.havochvatten.service.client.vesselcompws.v2_0.vessel.OwnerType;
-import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByCFRResponse;
 import se.havochvatten.service.client.vesselws.v2_1.vessel.Vessel;
 import se.havochvatten.service.client.vesselws.v2_1.vessel.VesselEuFormatType;
 
 public class ResponseMapper {
     
+    private static final List<String> OUT_EVENT_CODES = Arrays.asList("DES", "EXP", "RET");
+
     private ResponseMapper() {};
 
     public static AssetDTO mapToAsset(Vessel vessel) {
@@ -61,6 +62,13 @@ public class ResponseMapper {
                     asset.setConstructionYear(vesselEu.getConstruction().getYearOfConstruction().toString());
                 }
                 asset.setConstructionPlace(vesselEu.getConstruction().getPlaceOfConstruction());
+            }
+            if (vesselEu.getEvent() != null) {
+                String eventCode = vesselEu.getEvent().getEventCode();
+                asset.setEventCode(eventCode);
+                if (OUT_EVENT_CODES.contains(eventCode)) {
+                    asset.setActive(false);
+                }
             }
         }
     }

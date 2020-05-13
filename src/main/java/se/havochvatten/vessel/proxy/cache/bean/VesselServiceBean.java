@@ -66,8 +66,8 @@ public class VesselServiceBean {
     public void enrichVesselAndSendToAsset(Vessel vessel) {
         try {
             AssetDTO asset = ResponseMapper.mapToAsset(vessel);
-            
-            asset.setPortOfRegistration(portService.getPorts().getOrDefault(asset.getPortOfRegistration(), asset.getPortOfRegistration()));
+            String portOfRegistration = asset.getPortOfRegistration() + " " + portService.getPorts().getOrDefault(asset.getPortOfRegistration(), "Unknown harbour code");
+            asset.setPortOfRegistration(portOfRegistration);
             
             GetVesselAndOwnerListByIdResponse owners = client.getVesselAndOwnerListById(vessel.getVesselId());
             List<ContactInfo> contacts = new ArrayList<>();

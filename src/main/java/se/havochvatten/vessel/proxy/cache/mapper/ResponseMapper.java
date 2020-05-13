@@ -18,6 +18,7 @@ import java.util.List;
 import eu.europa.ec.fisheries.uvms.asset.client.model.AssetBO;
 import eu.europa.ec.fisheries.uvms.asset.client.model.AssetDTO;
 import eu.europa.ec.fisheries.uvms.asset.client.model.ContactInfo;
+import org.apache.commons.lang3.math.NumberUtils;
 import se.havochvatten.service.client.vesselcompws.v2_0.orgpers.OrganisationType;
 import se.havochvatten.service.client.vesselcompws.v2_0.orgpers.RolePersonType;
 import se.havochvatten.service.client.vesselcompws.v2_0.vessel.OwnerType;
@@ -32,17 +33,22 @@ public class ResponseMapper {
 
     public static AssetDTO mapToAsset(Vessel vessel) {
         AssetDTO asset = new AssetDTO();
+
         asset.setActive(vessel.isActive());
-        asset.setCfr(vessel.getCfr());
         asset.setFlagStateCode(vessel.getIso3AlphaNation());
         asset.setName(vessel.getVesselName());
-        asset.setExternalMarking(vessel.getDistrict());
+
         asset.setGrossTonnage(vessel.getEuTon() != null ? vessel.getEuTon().doubleValue(): null);
         asset.setLengthOverAll(vessel.getLoa() != null ? vessel.getLoa().doubleValue() : null);
         asset.setPortOfRegistration(vessel.getDefaultPort() != null ? vessel.getDefaultPort().getPort() : null);
+
+        asset.setExternalMarking(vessel.getDistrict());
+        asset.setCfr(vessel.getCfr());
         asset.setImo(vessel.getImoNumber());
         asset.setIrcs(vessel.getIrcs());
         asset.setIrcsIndicator(vessel.getIrcs() != null);
+        asset.setNationalId(NumberUtils.isParsable(vessel.getVesselId()) ? Long.parseLong(vessel.getVesselId()) : null );
+
         asset.setSource("NATIONAL");
         asset.setUpdatedBy("HAV VESSEL PROXY CACHE");
         asset.setPowerOfMainEngine(vessel.getEnginePower() != null ? vessel.getEnginePower().doubleValue() : null);

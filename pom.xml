@@ -24,6 +24,8 @@
         <notification.client.version>4.0.32</notification.client.version>
         <equipment.client.version>1.0.2</equipment.client.version>
         <geography.client.version>2.0.19</geography.client.version>
+        <orgpers.client.version>1.3.14</orgpers.client.version>
+        <fishingtrip.client.version>1.0.27</fishingtrip.client.version>
 
 		<application.groupid>${project.groupId}</application.groupid> 
         <application.version>${project.version}</application.version>
@@ -92,6 +94,16 @@
             <groupId>se.havochvatten.service.client</groupId>
             <artifactId>geography-client</artifactId>
             <version>${geography.client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>se.havochvatten.service.client</groupId>
+            <artifactId>orgpers-client</artifactId>
+            <version>${orgpers.client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>se.havochvatten.service.client</groupId>
+            <artifactId>fishingtrip-client</artifactId>
+            <version>${fishingtrip.client.version}</version>
         </dependency>
     </dependencies>
 

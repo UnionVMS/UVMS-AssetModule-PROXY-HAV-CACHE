@@ -3,8 +3,11 @@ package se.havochvatten.vessel.proxy.cache.bean;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -17,8 +20,13 @@ import eu.europa.ec.fisheries.uvms.asset.client.AssetClient;
 import eu.europa.ec.fisheries.uvms.asset.client.model.AssetDTO;
 import eu.europa.ec.fisheries.uvms.asset.client.model.ContactInfo;
 import se.havochvatten.service.client.equipmentws.v1_0.GetGearByIdResponse;
+import se.havochvatten.service.client.fishingtripws.v1_0.GetFishingTripListByQueryResponse;
+import se.havochvatten.service.client.fishingtripws.v1_0.fishingtrip.LOGTOTAL;
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCSResponse;
 import se.havochvatten.service.client.notificationws.v4_0.generalnotification.GearChangeNotificationType;
+import se.havochvatten.service.client.orgpersws.v1_3.GetPersonByCivicNrResponse;
+import se.havochvatten.service.client.orgpersws.v1_3.GetPersonsRepresentedByOrgResponse;
+import se.havochvatten.service.client.orgpersws.v1_3.RolePersonType;
 import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListByIdResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByIRCSResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselListByNationResponse;
@@ -75,7 +83,20 @@ public class VesselServiceBean {
                 ResponseMapper.enrichWithOrganisation(asset, owners.getOwner());
                 contacts = ResponseMapper.mapToContactInfo(owners.getOwner());
             }
-            
+
+            if (asset.getProdOrgCode() != null) {
+                GetPersonsRepresentedByOrgResponse personByOrg = client.getPersonByOrg(asset.getProdOrgCode());
+                if (personByOrg != null) {
+                    for (RolePersonType person : personByOrg.getRolePerson()) {
+                        contacts.add(ResponseMapper.mapToContactInfo(person));
+                    }
+                }
+            }
+
+            if (asset.getFlagStateCode().equals("SWE")) {
+                contacts.addAll(getMastersBasedOnDeparturesLast30Days(asset.getIrcs()));
+            }
+
             GetVesselEuFormatByIRCSResponse vesselEuFormat = client.getVesselEuFormatByIRCS(vessel.getIrcs());
             if (vesselEuFormat != null) {
                 ResponseMapper.enrichAssetWithEuFormatInformation(asset, vesselEuFormat.getVesselEuFormat());
@@ -135,5 +156,23 @@ public class VesselServiceBean {
             nationList = Arrays.asList(trim.split(","));
         }
         return nationList;
+    }
+
+    private Collection<ContactInfo> getMastersBasedOnDeparturesLast30Days(String ircs) {
+        GetFishingTripListByQueryResponse trips = client.getFishingTripsByDepartureLast30Days(ircs);
+        Map<String, ContactInfo> commanders = new HashMap<>();
+        if (trips != null) {
+            if (!trips.getFishingTrip().isEmpty()) {
+                LOG.info("Found {} trips for {}", trips.getFishingTrip().size(), ircs);
+            }
+            for (LOGTOTAL trip : trips.getFishingTrip()) {
+                String civicNumber = trip.getCIVICNR();
+                GetPersonByCivicNrResponse person = client.getPersonByCivicNumber(Long.valueOf(civicNumber));
+                ContactInfo contactInfo = ResponseMapper.mapToContactInfo(person.getRolePerson());
+                contactInfo.setType("Master");
+                commanders.put(civicNumber, contactInfo);
+            }
+        }
+        return commanders.values();
     }
 }

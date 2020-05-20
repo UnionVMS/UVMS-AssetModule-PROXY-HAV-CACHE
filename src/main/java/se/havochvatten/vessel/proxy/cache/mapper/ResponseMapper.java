@@ -118,12 +118,33 @@ public class ResponseMapper {
         ContactInfo assetContact = new ContactInfo();
         assetContact.setType("Person");
         assetContact.setEmail(rolePerson.getEmail());
-        assetContact.setPhoneNumber(rolePerson.getHomePhone() != null ? rolePerson.getHomePhone().getTelephoneNumber() : rolePerson.getMobilePhone().getTelephoneNumber());
+        if (rolePerson.getMobilePhone() != null) {
+            assetContact.setPhoneNumber(rolePerson.getMobilePhone().getTelephoneNumber());
+        } else if (rolePerson.getHomePhone() != null) {
+            assetContact.setPhoneNumber(rolePerson.getHomePhone().getTelephoneNumber());
+        }
         assetContact.setName(rolePerson.getPersonAdress().getName().getGivenname() + " " + rolePerson.getPersonAdress().getName().getSurname());
         assetContact.setStreetName(rolePerson.getPersonAdress().getStreet());
         assetContact.setZipCode(rolePerson.getPersonAdress().getZipcode() != null ? rolePerson.getPersonAdress().getZipcode().toString() : null);
         assetContact.setCityName(rolePerson.getPersonAdress().getCity());
         
+        return assetContact;
+    }
+
+    public static ContactInfo mapToContactInfo(se.havochvatten.service.client.orgpersws.v1_3.RolePersonType rolePerson) {
+        ContactInfo assetContact = new ContactInfo();
+        assetContact.setType("Person");
+        assetContact.setEmail(rolePerson.getEmail());
+        if (rolePerson.getMobilePhone() != null) {
+            assetContact.setPhoneNumber(rolePerson.getMobilePhone().getTelephoneNumber());
+        } else if (rolePerson.getHomePhone() != null) {
+            assetContact.setPhoneNumber(rolePerson.getHomePhone().getTelephoneNumber());
+        }
+        assetContact.setName(rolePerson.getPersonAdress().getName().getGivenname() + " " + rolePerson.getPersonAdress().getName().getSurname());
+        assetContact.setStreetName(rolePerson.getPersonAdress().getStreet());
+        assetContact.setZipCode(rolePerson.getPersonAdress().getZipcode() != null ? rolePerson.getPersonAdress().getZipcode().toString() : null);
+        assetContact.setCityName(rolePerson.getPersonAdress().getCity());
+
         return assetContact;
     }
 

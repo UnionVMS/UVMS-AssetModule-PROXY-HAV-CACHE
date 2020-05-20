@@ -19,6 +19,8 @@ import eu.europa.ec.fisheries.uvms.asset.client.model.ContactInfo;
 import se.havochvatten.service.client.equipmentws.v1_0.GetGearByIdResponse;
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCSResponse;
 import se.havochvatten.service.client.notificationws.v4_0.generalnotification.GearChangeNotificationType;
+import se.havochvatten.service.client.orgpersws.v1_3.GetPersonsRepresentedByOrgResponse;
+import se.havochvatten.service.client.orgpersws.v1_3.RolePersonType;
 import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListByIdResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByIRCSResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselListByNationResponse;
@@ -74,6 +76,15 @@ public class VesselServiceBean {
             if (owners != null) {
                 ResponseMapper.enrichWithOrganisation(asset, owners.getOwner());
                 contacts = ResponseMapper.mapToContactInfo(owners.getOwner());
+            }
+
+            if (asset.getProdOrgCode() != null) {
+                GetPersonsRepresentedByOrgResponse personByOrg = client.getPersonByOrg(asset.getProdOrgCode());
+                if (personByOrg != null) {
+                    for (RolePersonType person : personByOrg.getRolePerson()) {
+                        contacts.add(ResponseMapper.mapToContactInfo(person));
+                    }
+                }
             }
             
             GetVesselEuFormatByIRCSResponse vesselEuFormat = client.getVesselEuFormatByIRCS(vessel.getIrcs());

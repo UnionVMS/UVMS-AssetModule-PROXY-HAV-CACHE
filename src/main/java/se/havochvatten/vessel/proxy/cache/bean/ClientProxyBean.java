@@ -29,6 +29,9 @@ import se.havochvatten.service.client.notificationws.v4_0.GeneralNotificationPor
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCS;
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCSResponse;
 import se.havochvatten.service.client.notificationws.v4_0.NotificationException;
+import se.havochvatten.service.client.orgpersws.v1_3.GetPersonsRepresentedByOrg;
+import se.havochvatten.service.client.orgpersws.v1_3.GetPersonsRepresentedByOrgResponse;
+import se.havochvatten.service.client.orgpersws.v1_3.OrgPersException;
 import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListById;
 import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListByIdResponse;
 import se.havochvatten.service.client.vesselcompws.v2_0.VesselCompPortType;
@@ -136,5 +139,15 @@ public class ClientProxyBean {
     public List<PortInformationType> getPorts() throws GeographyException {
         return port.getGeographyPortType().getListPorts(Arrays.asList("SE"));
     }
-}
 
+    public GetPersonsRepresentedByOrgResponse getPersonByOrg(String orgNumber) {
+        try {
+            GetPersonsRepresentedByOrg request = new GetPersonsRepresentedByOrg();
+            request.setOrgNumber(orgNumber);
+            return port.getOrgPersPortType().getPersonsRepresentedByOrg(request);
+        } catch (OrgPersException e) {
+            LOG.warn("Could not get person by organisation: {}", orgNumber);
+            return null;
+        }
+    }
+}

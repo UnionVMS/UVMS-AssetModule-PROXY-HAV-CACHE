@@ -23,6 +23,8 @@ import se.havochvatten.service.client.geographyws.v2_0.GeographyPortType;
 import se.havochvatten.service.client.geographyws.v2_0.GeographyService;
 import se.havochvatten.service.client.notificationws.v4_0.GeneralNotificationPortType;
 import se.havochvatten.service.client.notificationws.v4_0.GeneralNotificationService;
+import se.havochvatten.service.client.orgpersws.v1_3.OrgPersPortType;
+import se.havochvatten.service.client.orgpersws.v1_3.OrgPersService;
 import se.havochvatten.service.client.vesselcompws.v2_0.VesselCompPortType;
 import se.havochvatten.service.client.vesselcompws.v2_0.VesselCompService;
 import se.havochvatten.service.client.vesselws.v2_1.VesselPortType;
@@ -38,12 +40,14 @@ public class PortInitiatorServiceBean {
     private static final String GENERAL_NOTIFICATION_PATH = "esb/GeneralNotification/v1";
     private static final String EQUIPMENT_PATH = "esb/Equipment/v1";
     private static final String GEOGRAPHY_PATH = "esb/Geography/v1";
+    private static final String ORGPERS_PATH = "esb/OrgPers/v1";
     
     private VesselPortType vesselPortType;
     private VesselCompPortType vesselCompServicePortType;
     private GeneralNotificationPortType generalNotificationPortType;
     private EquipmentPortType equipmentPortType;
     private GeographyPortType geographyPortType;
+    private OrgPersPortType orgPersPortType;
 
     @Inject
     private ParameterServiceBean parameterService;
@@ -149,5 +153,25 @@ public class PortInitiatorServiceBean {
 
     public void setGeographyPortType(GeographyPortType geographyPortType){
         this.geographyPortType = geographyPortType;
+    }
+
+    private void setupOrgPersType() {
+        OrgPersService orgPersService = new OrgPersService();
+        orgPersPortType = orgPersService.getOrgPersPortType();
+        BindingProvider bp = (BindingProvider) orgPersPortType;
+        Map<String, Object> context = bp.getRequestContext();
+        String endpointAddress = parameterService.getParameterValue(ParameterKey.NATIONAL_SERVICE_ENDPOINT);
+        context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress + "/" + ORGPERS_PATH);
+    }
+
+    public OrgPersPortType getOrgPersPortType() {
+        if(orgPersPortType == null){
+            setupOrgPersType();
+        }
+        return orgPersPortType;
+    }
+
+    public void setOrgPersPortType(OrgPersPortType orgPersPortType){
+        this.orgPersPortType = orgPersPortType;
     }
 }

@@ -127,6 +127,19 @@ public class ResponseMapper {
         return assetContact;
     }
 
+    public static ContactInfo mapToContactInfo(se.havochvatten.service.client.orgpersws.v1_3.RolePersonType rolePerson) {
+        ContactInfo assetContact = new ContactInfo();
+        assetContact.setType("Person");
+        assetContact.setEmail(rolePerson.getEmail());
+        assetContact.setPhoneNumber(rolePerson.getHomePhone() != null ? rolePerson.getHomePhone().getTelephoneNumber() : rolePerson.getMobilePhone().getTelephoneNumber());
+        assetContact.setName(rolePerson.getPersonAdress().getName().getGivenname() + " " + rolePerson.getPersonAdress().getName().getSurname());
+        assetContact.setStreetName(rolePerson.getPersonAdress().getStreet());
+        assetContact.setZipCode(rolePerson.getPersonAdress().getZipcode() != null ? rolePerson.getPersonAdress().getZipcode().toString() : null);
+        assetContact.setCityName(rolePerson.getPersonAdress().getCity());
+
+        return assetContact;
+    }
+
     private static ContactInfo mapToContactInfo(OrganisationType organisationType) {
         ContactInfo assetContact = new ContactInfo();
         assetContact.setType("Organization");

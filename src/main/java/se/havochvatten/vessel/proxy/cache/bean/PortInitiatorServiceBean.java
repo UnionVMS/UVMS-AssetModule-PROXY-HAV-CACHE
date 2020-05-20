@@ -19,6 +19,8 @@ import javax.inject.Inject;
 import javax.xml.ws.BindingProvider;
 import se.havochvatten.service.client.equipmentws.v1_0.EquipmentPortType;
 import se.havochvatten.service.client.equipmentws.v1_0.EquipmentService;
+import se.havochvatten.service.client.fishingtripws.v1_0.FishingTripPortType;
+import se.havochvatten.service.client.fishingtripws.v1_0.FishingTripService;
 import se.havochvatten.service.client.geographyws.v2_0.GeographyPortType;
 import se.havochvatten.service.client.geographyws.v2_0.GeographyService;
 import se.havochvatten.service.client.notificationws.v4_0.GeneralNotificationPortType;
@@ -41,6 +43,7 @@ public class PortInitiatorServiceBean {
     private static final String EQUIPMENT_PATH = "esb/Equipment/v1";
     private static final String GEOGRAPHY_PATH = "esb/Geography/v1";
     private static final String ORGPERS_PATH = "esb/OrgPers/v1";
+    private static final String FISHINGTRIP_PATH = "esb/FishingTrip/v2";
     
     private VesselPortType vesselPortType;
     private VesselCompPortType vesselCompServicePortType;
@@ -48,6 +51,7 @@ public class PortInitiatorServiceBean {
     private EquipmentPortType equipmentPortType;
     private GeographyPortType geographyPortType;
     private OrgPersPortType orgPersPortType;
+    private FishingTripPortType fishingTripPortType;
 
     @Inject
     private ParameterServiceBean parameterService;
@@ -173,5 +177,25 @@ public class PortInitiatorServiceBean {
 
     public void setOrgPersPortType(OrgPersPortType orgPersPortType){
         this.orgPersPortType = orgPersPortType;
+    }
+
+    private void setupFishingTripType() {
+        FishingTripService fishingTripService = new FishingTripService();
+        fishingTripPortType = fishingTripService.getFishingTripPortType();
+        BindingProvider bp = (BindingProvider) fishingTripPortType;
+        Map<String, Object> context = bp.getRequestContext();
+        String endpointAddress = parameterService.getParameterValue(ParameterKey.NATIONAL_SERVICE_ENDPOINT);
+        context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress + "/" + FISHINGTRIP_PATH);
+    }
+
+    public FishingTripPortType getFishingTripPortType() {
+        if(fishingTripPortType == null){
+            setupFishingTripType();
+        }
+        return fishingTripPortType;
+    }
+
+    public void setFishingTripPortType(FishingTripPortType fishingTripPortType){
+        this.fishingTripPortType = fishingTripPortType;
     }
 }

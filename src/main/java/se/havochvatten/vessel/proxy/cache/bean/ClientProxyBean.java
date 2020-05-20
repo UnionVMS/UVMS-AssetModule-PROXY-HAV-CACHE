@@ -12,10 +12,13 @@ copy of the GNU General Public License along with the IFDM Suite. If not, see <h
 package se.havochvatten.vessel.proxy.cache.bean;
 
 import java.math.BigInteger;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.xml.datatype.DatatypeFactory;
 import org.slf4j.LoggerFactory;
 import se.havochvatten.service.client.equipmentws.v1_0.EquipmentException;
 import se.havochvatten.service.client.equipmentws.v1_0.EquipmentPortType;
@@ -23,12 +26,20 @@ import se.havochvatten.service.client.equipmentws.v1_0.GetGearById;
 import se.havochvatten.service.client.equipmentws.v1_0.GetGearByIdResponse;
 import se.havochvatten.service.client.equipmentws.v1_0.GetGears;
 import se.havochvatten.service.client.equipmentws.v1_0.GetGearsResponse;
+import se.havochvatten.service.client.fishingtripws.v1_0.GetFishingTripListByQuery;
+import se.havochvatten.service.client.fishingtripws.v1_0.GetFishingTripListByQueryResponse;
+import se.havochvatten.service.client.fishingtripws.v1_0.fishingtrip.DateToFromSearchType;
+import se.havochvatten.service.client.fishingtripws.v1_0.fishingtrip.TripSearchReqType;
+import se.havochvatten.service.client.fishingtripws.v1_0.fishingtrip.TripSearchReqType.Search;
+import se.havochvatten.service.client.fishingtripws.v1_0.fishingtrip.VesselListSearchType;
 import se.havochvatten.service.client.geographyws.v2_0.GeographyException;
 import se.havochvatten.service.client.geographyws.v2_0.PortInformationType;
 import se.havochvatten.service.client.notificationws.v4_0.GeneralNotificationPortType;
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCS;
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCSResponse;
 import se.havochvatten.service.client.notificationws.v4_0.NotificationException;
+import se.havochvatten.service.client.orgpersws.v1_3.GetPersonByCivicNr;
+import se.havochvatten.service.client.orgpersws.v1_3.GetPersonByCivicNrResponse;
 import se.havochvatten.service.client.orgpersws.v1_3.GetPersonsRepresentedByOrg;
 import se.havochvatten.service.client.orgpersws.v1_3.GetPersonsRepresentedByOrgResponse;
 import se.havochvatten.service.client.orgpersws.v1_3.OrgPersException;
@@ -146,7 +157,41 @@ public class ClientProxyBean {
             request.setOrgNumber(orgNumber);
             return port.getOrgPersPortType().getPersonsRepresentedByOrg(request);
         } catch (OrgPersException e) {
-            LOG.warn("Could not get person by organisation: {}", orgNumber);
+            LOG.warn("Could not get person by organisation: {}, {}", orgNumber, e.getMessage());
+            return null;
+        }
+    }
+
+    public GetPersonByCivicNrResponse getPersonByCivicNumber(long civicNr) {
+        try {
+            GetPersonByCivicNr personByCivicNr = new GetPersonByCivicNr();
+            personByCivicNr.setCivicNumber(civicNr);
+            return port.getOrgPersPortType().getPersonByCivicNr(personByCivicNr);
+        } catch (OrgPersException e) {
+            LOG.warn("Could not get person by civicNr: {}, {}", civicNr, e.getMessage());
+            return null;
+        }
+    }
+
+    public GetFishingTripListByQueryResponse getFishingTripsByDepartureLast30Days(String ircs) {
+        try {
+            GetFishingTripListByQuery query = new GetFishingTripListByQuery();
+            TripSearchReqType tripSearch = new TripSearchReqType();
+            Search search = new Search();
+            VesselListSearchType vesselListSearch = new VesselListSearchType();
+            vesselListSearch.getIrcs().add(ircs);
+            search.setVesselList(vesselListSearch);
+            DateToFromSearchType dateSearch = new DateToFromSearchType();
+            Instant fromDate = Instant.now().minus(30, ChronoUnit.DAYS);
+            dateSearch.setFrom(DatatypeFactory.newInstance().newXMLGregorianCalendar(fromDate.toString()));
+            Instant to = Instant.now();
+            dateSearch.setTo(DatatypeFactory.newInstance().newXMLGregorianCalendar(to.toString()));
+            search.setDepartureDate(dateSearch);
+            tripSearch.setSearch(search);
+            query.setTripSearchReq(tripSearch);
+            return port.getFishingTripPortType().getFishingTripListByQuery(query);
+        } catch (Exception e) {
+            LOG.warn("Could not get fishing trip by IRCS: {}, {}", ircs, e.getMessage());
             return null;
         }
     }

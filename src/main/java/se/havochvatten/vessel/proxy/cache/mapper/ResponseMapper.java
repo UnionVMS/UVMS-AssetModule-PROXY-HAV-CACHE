@@ -118,7 +118,13 @@ public class ResponseMapper {
         ContactInfo assetContact = new ContactInfo();
         assetContact.setType("Person");
         assetContact.setEmail(rolePerson.getEmail());
-        assetContact.setPhoneNumber(rolePerson.getHomePhone() != null ? rolePerson.getHomePhone().getTelephoneNumber() : rolePerson.getMobilePhone().getTelephoneNumber());
+        String phoneNumber = null;
+        if (rolePerson.getMobilePhone() != null) {
+            phoneNumber = rolePerson.getMobilePhone().getTelephoneNumber();
+        } else if (rolePerson.getHomePhone() != null) {
+            phoneNumber = rolePerson.getHomePhone().getTelephoneNumber();
+        }
+        assetContact.setPhoneNumber(phoneNumber);
         assetContact.setName(rolePerson.getPersonAdress().getName().getGivenname() + " " + rolePerson.getPersonAdress().getName().getSurname());
         assetContact.setStreetName(rolePerson.getPersonAdress().getStreet());
         assetContact.setZipCode(rolePerson.getPersonAdress().getZipcode() != null ? rolePerson.getPersonAdress().getZipcode().toString() : null);
@@ -131,7 +137,13 @@ public class ResponseMapper {
         ContactInfo assetContact = new ContactInfo();
         assetContact.setType("Person");
         assetContact.setEmail(rolePerson.getEmail());
-        assetContact.setPhoneNumber(rolePerson.getHomePhone() != null ? rolePerson.getHomePhone().getTelephoneNumber() : rolePerson.getMobilePhone().getTelephoneNumber());
+        String phoneNumber = null;
+        if (rolePerson.getMobilePhone() != null) {
+            phoneNumber = rolePerson.getMobilePhone().getTelephoneNumber();
+        } else if (rolePerson.getHomePhone() != null) {
+            phoneNumber = rolePerson.getHomePhone().getTelephoneNumber();
+        }
+        assetContact.setPhoneNumber(phoneNumber);
         assetContact.setName(rolePerson.getPersonAdress().getName().getGivenname() + " " + rolePerson.getPersonAdress().getName().getSurname());
         assetContact.setStreetName(rolePerson.getPersonAdress().getStreet());
         assetContact.setZipCode(rolePerson.getPersonAdress().getZipcode() != null ? rolePerson.getPersonAdress().getZipcode().toString() : null);

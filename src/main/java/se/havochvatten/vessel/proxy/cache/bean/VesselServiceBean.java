@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -17,8 +18,13 @@ import javax.jms.JMSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import eu.europa.ec.fisheries.uvms.asset.client.AssetClient;
+import eu.europa.ec.fisheries.uvms.asset.client.model.AssetBO;
 import eu.europa.ec.fisheries.uvms.asset.client.model.AssetDTO;
 import eu.europa.ec.fisheries.uvms.asset.client.model.ContactInfo;
+import eu.europa.ec.fisheries.uvms.asset.client.model.FishingLicence;
+import se.havochvatten.service.client.authlic_v2ws.v1_0.GetFishingLicenceByCFRResponse;
+import se.havochvatten.service.client.authlic_v2ws.v1_0.authlic.FishingLicenceType;
+import se.havochvatten.service.client.authlic_v2ws.v1_0.authlic.LimitationType;
 import se.havochvatten.service.client.equipmentws.v1_0.GetGearByIdResponse;
 import se.havochvatten.service.client.fishingtripws.v1_0.GetFishingTripListByQueryResponse;
 import se.havochvatten.service.client.fishingtripws.v1_0.fishingtrip.LOGTOTAL;
@@ -97,6 +103,11 @@ public class VesselServiceBean {
                 contacts.addAll(getMastersBasedOnDeparturesLast30Days(asset.getIrcs()));
             }
 
+            FishingLicence fishingLicence = null;
+            if (asset.getFlagStateCode().equals("SWE") && Boolean.TRUE.equals(asset.getHasLicence())) {
+                fishingLicence = getFishingLicenceByCFR(asset.getCfr());
+            }
+
             GetVesselEuFormatByIRCSResponse vesselEuFormat = client.getVesselEuFormatByIRCS(vessel.getIrcs());
             if (vesselEuFormat != null) {
                 ResponseMapper.enrichAssetWithEuFormatInformation(asset, vesselEuFormat.getVesselEuFormat());
@@ -107,7 +118,7 @@ public class VesselServiceBean {
                 setGearTypeInformation(asset, gearType);
             }
             
-            assetClient.upsertAssetAsync(ResponseMapper.mapToAssetBO(asset, contacts));
+            assetClient.upsertAssetAsync(ResponseMapper.mapToAssetBO(asset, contacts, fishingLicence));
         } catch (JMSException e) {
             LOG.error("Could not send message to Asset. Vessel: {}", vessel.getVesselId());
         } catch (Exception e) {
@@ -174,5 +185,27 @@ public class VesselServiceBean {
             }
         }
         return commanders.values();
+    }
+
+    private FishingLicence getFishingLicenceByCFR(String cfr) {
+        GetFishingLicenceByCFRResponse fishingLicenceByCFR = client.getFishingLicenceByCFR(cfr);
+        if (fishingLicenceByCFR != null && fishingLicenceByCFR.getFishingLicence() != null) {
+            FishingLicenceType fishingLicenceType = fishingLicenceByCFR.getFishingLicence();
+            FishingLicence fishingLicence = new FishingLicence();
+            fishingLicence.setLicenceNumber(Long.valueOf(fishingLicenceType.getLicenceType().getId()));
+            fishingLicence.setCivicNumber(String.valueOf(fishingLicenceType.getCivicNumber()));
+            fishingLicence.setFromDate(fishingLicenceType.getValidityPeriod().getFrom().toGregorianCalendar().toInstant());
+            fishingLicence.setToDate(fishingLicenceType.getValidityPeriod().getTo().toGregorianCalendar().toInstant());
+            fishingLicence.setDecisionDate(fishingLicenceType.getDateForDecisison().toGregorianCalendar().toInstant());
+            if (!fishingLicenceType.getLimitation().isEmpty()) {
+                String constraints = fishingLicenceType.getLimitation()
+                    .stream()
+                    .map(LimitationType::getLimitationText)
+                    .collect(Collectors.joining(", "));
+                fishingLicence.setConstraints(constraints);
+            }
+            return fishingLicence;
+        }
+        return null;
     }
 }

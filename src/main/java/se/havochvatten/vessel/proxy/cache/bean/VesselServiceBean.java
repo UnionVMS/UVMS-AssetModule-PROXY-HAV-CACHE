@@ -201,7 +201,7 @@ public class VesselServiceBean {
                 String constraints = fishingLicenceType.getLimitation()
                     .stream()
                     .map(LimitationType::getLimitationText)
-                    .collect(Collectors.joining(", "));
+                    .collect(Collectors.joining("; "));
                 fishingLicence.setConstraints(constraints);
             }
             return fishingLicence;

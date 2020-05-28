@@ -20,6 +20,9 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.xml.datatype.DatatypeFactory;
 import org.slf4j.LoggerFactory;
+import se.havochvatten.service.client.authlic_v2ws.v1_0.AuthLicException;
+import se.havochvatten.service.client.authlic_v2ws.v1_0.GetFishingLicenceByCFR;
+import se.havochvatten.service.client.authlic_v2ws.v1_0.GetFishingLicenceByCFRResponse;
 import se.havochvatten.service.client.equipmentws.v1_0.EquipmentException;
 import se.havochvatten.service.client.equipmentws.v1_0.EquipmentPortType;
 import se.havochvatten.service.client.equipmentws.v1_0.GetGearById;
@@ -192,6 +195,17 @@ public class ClientProxyBean {
             return port.getFishingTripPortType().getFishingTripListByQuery(query);
         } catch (Exception e) {
             LOG.warn("Could not get fishing trip by IRCS: {}, {}", ircs, e.getMessage());
+            return null;
+        }
+    }
+
+    public GetFishingLicenceByCFRResponse getFishingLicenceByCFR(String cfr) {
+        try {
+            GetFishingLicenceByCFR request = new GetFishingLicenceByCFR();
+            request.setCfr(cfr);
+            return port.getAuthLicPortType().getFishingLicenceByCFR(request);
+        } catch (AuthLicException e) {
+            LOG.warn("Could not get fishing licence by cfr: {}, {}", cfr, e.getMessage());
             return null;
         }
     }

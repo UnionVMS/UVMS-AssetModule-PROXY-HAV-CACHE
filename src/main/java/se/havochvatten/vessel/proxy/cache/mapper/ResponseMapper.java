@@ -18,6 +18,7 @@ import java.util.List;
 import eu.europa.ec.fisheries.uvms.asset.client.model.AssetBO;
 import eu.europa.ec.fisheries.uvms.asset.client.model.AssetDTO;
 import eu.europa.ec.fisheries.uvms.asset.client.model.ContactInfo;
+import eu.europa.ec.fisheries.uvms.asset.client.model.FishingLicence;
 import org.apache.commons.lang3.math.NumberUtils;
 import se.havochvatten.service.client.vesselcompws.v2_0.orgpers.OrganisationType;
 import se.havochvatten.service.client.vesselcompws.v2_0.orgpers.RolePersonType;
@@ -107,10 +108,11 @@ public class ResponseMapper {
         return contacts;
     }
     
-    public static AssetBO mapToAssetBO(AssetDTO asset, List<ContactInfo> contacts) {
+    public static AssetBO mapToAssetBO(AssetDTO asset, List<ContactInfo> contacts, FishingLicence fishingLicence) {
         AssetBO assetBo = new AssetBO();
         assetBo.setAsset(asset);
         assetBo.setContacts(contacts);
+        assetBo.setFishingLicence(fishingLicence);
         return assetBo;
     }
     

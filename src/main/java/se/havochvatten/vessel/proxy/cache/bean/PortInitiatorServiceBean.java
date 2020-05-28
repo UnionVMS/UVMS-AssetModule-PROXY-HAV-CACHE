@@ -17,6 +17,8 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.xml.ws.BindingProvider;
+import se.havochvatten.service.client.authlic_v2ws.v1_0.AuthLicPortType;
+import se.havochvatten.service.client.authlic_v2ws.v1_0.AuthLicService;
 import se.havochvatten.service.client.equipmentws.v1_0.EquipmentPortType;
 import se.havochvatten.service.client.equipmentws.v1_0.EquipmentService;
 import se.havochvatten.service.client.fishingtripws.v1_0.FishingTripPortType;
@@ -44,6 +46,7 @@ public class PortInitiatorServiceBean {
     private static final String GEOGRAPHY_PATH = "esb/Geography/v1";
     private static final String ORGPERS_PATH = "esb/OrgPers/v1";
     private static final String FISHINGTRIP_PATH = "esb/FishingTrip/v2";
+    private static final String AUTHLIC_PATH = "esb/AuthLic/v2";
     
     private VesselPortType vesselPortType;
     private VesselCompPortType vesselCompServicePortType;
@@ -52,6 +55,7 @@ public class PortInitiatorServiceBean {
     private GeographyPortType geographyPortType;
     private OrgPersPortType orgPersPortType;
     private FishingTripPortType fishingTripPortType;
+    private AuthLicPortType authLicPortType;
 
     @Inject
     private ParameterServiceBean parameterService;
@@ -179,7 +183,7 @@ public class PortInitiatorServiceBean {
         this.orgPersPortType = orgPersPortType;
     }
 
-    private void setupFishingTripType() {
+    private void setupFishingTripPortType() {
         FishingTripService fishingTripService = new FishingTripService();
         fishingTripPortType = fishingTripService.getFishingTripPortType();
         BindingProvider bp = (BindingProvider) fishingTripPortType;
@@ -190,12 +194,34 @@ public class PortInitiatorServiceBean {
 
     public FishingTripPortType getFishingTripPortType() {
         if(fishingTripPortType == null){
-            setupFishingTripType();
+            setupFishingTripPortType();
         }
         return fishingTripPortType;
     }
 
     public void setFishingTripPortType(FishingTripPortType fishingTripPortType){
         this.fishingTripPortType = fishingTripPortType;
+    }
+
+    private void setupAuthLicPortType() {
+        AuthLicService authLicService = new AuthLicService();
+        authLicPortType = authLicService.getAuthLicPortType();
+        BindingProvider bp = (BindingProvider) authLicPortType;
+        Map<String, Object> context = bp.getRequestContext();
+        //TODO
+//        String endpointAddress = parameterService.getParameterValue(ParameterKey.NATIONAL_SERVICE_ENDPOINT);
+//        context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress + "/" + AUTHLIC_PATH);
+        context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, "http://livm60t.havochvatten.se:8080/AuthLicService/AuthLic");
+    }
+
+    public AuthLicPortType getAuthLicPortType() {
+        if(authLicPortType == null){
+            setupAuthLicPortType();
+        }
+        return authLicPortType;
+    }
+
+    public void setAuthLicPortType(AuthLicPortType authLicPortType){
+        this.authLicPortType = authLicPortType;
     }
 }

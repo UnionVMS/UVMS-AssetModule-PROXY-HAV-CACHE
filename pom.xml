@@ -10,7 +10,7 @@
     
     <groupId>se.havochvatten.vessel.proxy.cache</groupId>
     <artifactId>hav-vessel-proxy-cache</artifactId>
-    <version>3.0.13-SNAPSHOT</version>
+    <version>3.0.13</version>
     <packaging>war</packaging>
     
     <name>${project.artifactId}</name>
@@ -115,7 +115,7 @@
 
     <scm>
         <connection>scm:git:https://github.com/UnionVMS/UVMS-AssetModule-PROXY-HAV-CACHE.git</connection>
-        <tag>hav-vessel-proxy-cache-3.0.2</tag>
+        <tag>hav-vessel-proxy-cache-3.0.13</tag>
     </scm>
 
     <build>

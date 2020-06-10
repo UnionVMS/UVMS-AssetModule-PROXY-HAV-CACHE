@@ -46,7 +46,7 @@ public class PortInitiatorServiceBean {
     private static final String GEOGRAPHY_PATH = "esb/Geography/v1";
     private static final String ORGPERS_PATH = "esb/OrgPers/v1";
     private static final String FISHINGTRIP_PATH = "esb/FishingTrip/v2";
-    private static final String AUTHLIC_PATH = "esb/AuthLic/v2";
+    private static final String AUTHLIC_PATH = "esb/Authlic/v2";
     
     private VesselPortType vesselPortType;
     private VesselCompPortType vesselCompServicePortType;
@@ -208,10 +208,8 @@ public class PortInitiatorServiceBean {
         authLicPortType = authLicService.getAuthLicPortType();
         BindingProvider bp = (BindingProvider) authLicPortType;
         Map<String, Object> context = bp.getRequestContext();
-        //TODO
-//        String endpointAddress = parameterService.getParameterValue(ParameterKey.NATIONAL_SERVICE_ENDPOINT);
-//        context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress + "/" + AUTHLIC_PATH);
-        context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, "http://livm60t.havochvatten.se:8080/AuthLicService/AuthLic");
+        String endpointAddress = parameterService.getParameterValue(ParameterKey.NATIONAL_SERVICE_ENDPOINT);
+        context.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpointAddress + "/" + AUTHLIC_PATH);
     }
 
     public AuthLicPortType getAuthLicPortType() {

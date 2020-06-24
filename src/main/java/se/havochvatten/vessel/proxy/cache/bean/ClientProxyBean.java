@@ -41,6 +41,8 @@ import se.havochvatten.service.client.notificationws.v4_0.GeneralNotificationPor
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCS;
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCSResponse;
 import se.havochvatten.service.client.notificationws.v4_0.NotificationException;
+import se.havochvatten.service.client.orgpersws.v1_3.GetOrgByOrgNr;
+import se.havochvatten.service.client.orgpersws.v1_3.GetOrgByOrgNrResponse;
 import se.havochvatten.service.client.orgpersws.v1_3.GetPersonByCivicNr;
 import se.havochvatten.service.client.orgpersws.v1_3.GetPersonByCivicNrResponse;
 import se.havochvatten.service.client.orgpersws.v1_3.GetPersonsRepresentedByOrg;
@@ -172,6 +174,17 @@ public class ClientProxyBean {
             return port.getOrgPersPortType().getPersonByCivicNr(personByCivicNr);
         } catch (OrgPersException e) {
             LOG.warn("Could not get person by civicNr: {}, {}", civicNr, e.getMessage());
+            return null;
+        }
+    }
+
+    public GetOrgByOrgNrResponse getOrgByOrgNumber(String orgNr) {
+        try {
+            GetOrgByOrgNr orgByorgNr = new GetOrgByOrgNr();
+            orgByorgNr.setOrgNumber(orgNr);
+            return port.getOrgPersPortType().getOrgByOrgNr(orgByorgNr);
+        } catch (OrgPersException e) {
+            LOG.warn("Could not get organisation by orgNr: {}, {}", orgNr, e.getMessage());
             return null;
         }
     }

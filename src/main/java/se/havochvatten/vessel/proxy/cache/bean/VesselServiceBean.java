@@ -18,7 +18,6 @@ import javax.jms.JMSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import eu.europa.ec.fisheries.uvms.asset.client.AssetClient;
-import eu.europa.ec.fisheries.uvms.asset.client.model.AssetBO;
 import eu.europa.ec.fisheries.uvms.asset.client.model.AssetDTO;
 import eu.europa.ec.fisheries.uvms.asset.client.model.ContactInfo;
 import eu.europa.ec.fisheries.uvms.asset.client.model.FishingLicence;
@@ -30,6 +29,7 @@ import se.havochvatten.service.client.fishingtripws.v1_0.GetFishingTripListByQue
 import se.havochvatten.service.client.fishingtripws.v1_0.fishingtrip.LOGTOTAL;
 import se.havochvatten.service.client.notificationws.v4_0.GetGearChangeNotificationListByVesselIRCSResponse;
 import se.havochvatten.service.client.notificationws.v4_0.generalnotification.GearChangeNotificationType;
+import se.havochvatten.service.client.orgpersws.v1_3.GetOrgByOrgNrResponse;
 import se.havochvatten.service.client.orgpersws.v1_3.GetPersonByCivicNrResponse;
 import se.havochvatten.service.client.orgpersws.v1_3.GetPersonsRepresentedByOrgResponse;
 import se.havochvatten.service.client.orgpersws.v1_3.RolePersonType;
@@ -206,6 +206,17 @@ public class VesselServiceBean {
                     .collect(Collectors.joining("; "));
                 fishingLicence.setConstraints(constraints);
             }
+            String licenceName = null;
+            GetPersonByCivicNrResponse person = client.getPersonByCivicNumber(fishingLicenceType.getCivicNumber());
+            if (person != null) {
+                licenceName = person.getRolePerson().getPersonAdress().getName().getGivenname() + " " + person.getRolePerson().getPersonAdress().getName().getSurname();
+            } else {
+                GetOrgByOrgNrResponse organisation = client.getOrgByOrgNumber(String.valueOf(fishingLicenceType.getCivicNumber()));
+                if (organisation != null) {
+                    licenceName = organisation.getOrganisation().getOrganisationAdress().getOrgName();
+                }
+            }
+            fishingLicence.setName(licenceName);
             return fishingLicence;
         }
         return null;

@@ -15,7 +15,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import org.slf4j.Logger;
@@ -36,7 +35,7 @@ public class GearTypesServiceBean {
     private static final String GEAR_TYPE = "FISHING_TYPE";
     private static final String GEAR_GROUP = "FISHING_GEAR_GROUP";
 
-    @EJB
+    @Inject
     private AssetClient assetClient;
 
     @Inject

@@ -19,7 +19,7 @@
         <asset.model.version>6.7.23</asset.model.version>
         <uvms.common.version>4.1.7</uvms.common.version>
 
-        <vessel.client.version>2.1.29</vessel.client.version>
+        <vessel.client.version>2.1.42</vessel.client.version>
         <vessel.comp.client.version>2.0.3</vessel.comp.client.version>
         <notification.client.version>4.0.32</notification.client.version>
         <equipment.client.version>1.0.2</equipment.client.version>
@@ -44,6 +44,12 @@
             <artifactId>asset-client</artifactId>
             <version>${asset.model.version}</version>
             <type>jar</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.terracotta.internal</groupId>
+                    <artifactId>statistics</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>eu.europa.ec.fisheries.uvms.commons</groupId>

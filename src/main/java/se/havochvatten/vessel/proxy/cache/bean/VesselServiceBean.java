@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -53,7 +52,7 @@ public class VesselServiceBean {
     @Inject
     private PortServiceBean portService;
 
-    @EJB
+    @Inject
     private AssetClient assetClient;
     
     @Inject

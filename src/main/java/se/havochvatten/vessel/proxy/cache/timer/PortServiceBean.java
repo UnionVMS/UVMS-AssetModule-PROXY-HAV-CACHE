@@ -9,21 +9,25 @@ the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the impl
 FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details. You should have received a
 copy of the GNU General Public License along with the IFDM Suite. If not, see <http://www.gnu.org/licenses/>.
  */
-package se.havochvatten.vessel.proxy.cache.bean;
+package se.havochvatten.vessel.proxy.cache.timer;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.enterprise.concurrent.ManagedScheduledExecutorService;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.havochvatten.service.client.geographyws.v2_0.GeographyException;
 import se.havochvatten.service.client.geographyws.v2_0.PortInformationType;
+import se.havochvatten.vessel.proxy.cache.bean.ClientProxyBean;
 
 @Singleton
 @Startup
@@ -32,16 +36,19 @@ public class PortServiceBean {
     private static final Logger LOG = LoggerFactory.getLogger(PortServiceBean.class);
 
     private Map<String, String> ports = new HashMap<>();
-    
+
+    @Resource(lookup="java:/UvmsVesselCacheProxyExecutorService")
+    private ManagedScheduledExecutorService executorService;
+
     @Inject
     private ClientProxyBean clientProxy;
-    
+
     @PostConstruct
     public void init() {
-        readPorts();
+        executorService.schedule(this::updatePorts, 10, TimeUnit.SECONDS);
     }
-    
-    @Schedule(dayOfWeek = "0", hour = "1")
+
+    @Schedule(hour = "1")
     public void updatePorts() {
         readPorts();
     }

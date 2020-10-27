@@ -39,6 +39,7 @@ import se.havochvatten.service.client.vesselws.v2_1.VesselException;
 import se.havochvatten.service.client.vesselws.v2_1.vessel.Vessel;
 import se.havochvatten.vessel.proxy.cache.constant.ParameterKey;
 import se.havochvatten.vessel.proxy.cache.mapper.ResponseMapper;
+import se.havochvatten.vessel.proxy.cache.timer.PortServiceBean;
 import se.havochvatten.vessel.proxy.cache.utils.GearChangeNotificationTypeComparator;
 
 @Stateless

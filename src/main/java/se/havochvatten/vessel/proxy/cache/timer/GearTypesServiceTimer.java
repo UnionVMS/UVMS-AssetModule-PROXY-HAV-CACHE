@@ -11,27 +11,41 @@ FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more d
 copy of the GNU General Public License along with the IFDM Suite. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.util.concurrent.TimeUnit;
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.ejb.Schedule;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.enterprise.concurrent.ManagedScheduledExecutorService;
+import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.havochvatten.vessel.proxy.cache.bean.GearTypesServiceBean;
 
-public class GearTypesServiceTask implements Runnable {
+@Singleton
+@Startup
+public class GearTypesServiceTimer {
 
+    private static final Logger LOG = LoggerFactory.getLogger(GearTypesServiceTimer.class);
 
-    private static final Logger LOG = LoggerFactory.getLogger(GearTypesServiceTask.class);
+    @Inject
     private GearTypesServiceBean gearTypesServiceBean;
 
+    @Resource(lookup="java:/UvmsVesselCacheProxyExecutorService")
+    private ManagedScheduledExecutorService executorService;
 
-    public GearTypesServiceTask(GearTypesServiceBean gearTypesServiceBean){
-        this.gearTypesServiceBean = gearTypesServiceBean;
+    @PostConstruct
+    public void init() {
+        executorService.schedule(this::updateGears, 4, TimeUnit.MINUTES);
     }
 
-    @Override
-    public void run() {
+    @Schedule(hour = "1")
+    public void updateGears() {
         LOG.info("GearTypesServiceTask run!");
         long start = System.currentTimeMillis();
         gearTypesServiceBean.updateGearTypes();
         long tot = System.currentTimeMillis() - start;
-        LOG.info("--------------- GearTypesServiceTask total time " +  tot +" ms      -------------");
+        LOG.info("--------------- GearTypesServiceTask total time {} ms      -------------", tot);
     }
 }

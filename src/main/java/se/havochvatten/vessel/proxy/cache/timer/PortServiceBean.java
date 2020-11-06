@@ -45,7 +45,7 @@ public class PortServiceBean {
 
     @PostConstruct
     public void init() {
-        executorService.schedule(this::updatePorts, 10, TimeUnit.SECONDS);
+        executorService.schedule(this::updatePorts, 4, TimeUnit.MINUTES);
     }
 
     @Schedule(hour = "1")

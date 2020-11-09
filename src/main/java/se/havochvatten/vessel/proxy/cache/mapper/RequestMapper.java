@@ -13,8 +13,13 @@ package se.havochvatten.vessel.proxy.cache.mapper;
 
 import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListById;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselListByNation;
+import se.havochvatten.service.client.vesselws.v2_1.vessel.DefaultPortType;
+import se.havochvatten.service.client.vesselws.v2_1.vessel.Vessel;
+import se.havochvatten.service.client.vesselws.v2_1.vessel.VesselEuFormatType;
 
 public class RequestMapper {
+
+    private RequestMapper() {}
 
     public static GetVesselListByNation mapToGetVesselListByNation(String iso3AlphaNation) {
         GetVesselListByNation getVesselListByNation = new GetVesselListByNation();
@@ -26,5 +31,28 @@ public class RequestMapper {
         GetVesselAndOwnerListById getVesselAndOwnerListById = new GetVesselAndOwnerListById();
         getVesselAndOwnerListById.setVesselId(id);
         return getVesselAndOwnerListById;
+    }
+
+    public static Vessel mapEuFormatToVessel(VesselEuFormatType vesselEuFormat) {
+        Vessel vessel = new Vessel();
+        vessel.setActive(true);
+        vessel.setIso3AlphaNation(vesselEuFormat.getRegistration().getCountryOfRegistration());
+        vessel.setVesselName(vesselEuFormat.getIdentification().getNameOfVessel());
+
+        vessel.setEuTon(vesselEuFormat.getDimension().getTonnageGT());
+        vessel.setLoa(vesselEuFormat.getDimension().getLoa());
+        DefaultPortType port = new DefaultPortType();
+        port.setPort(vesselEuFormat.getRegistration().getPortCode());
+        vessel.setDefaultPort(port);
+
+        vessel.setDistrict(vesselEuFormat.getIdentification().getExternalMarking());
+        vessel.setCfr(vesselEuFormat.getIdentification().getCfr());
+        vessel.setImoNumber(vesselEuFormat.getIdentification().getImo());
+        vessel.setIrcs(vesselEuFormat.getIdentification().getIrcs());
+
+        vessel.setEnginePower(vesselEuFormat.getEngine().getPowerOfAuxEngine());
+        vessel.setHasLicense(vesselEuFormat.getEquipment().isLicenceIndicator());
+        vessel.setHasVms(vesselEuFormat.getEquipment().isVmsIndicator());
+        return vessel;
     }
 }

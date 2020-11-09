@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.havochvatten.service.client.vesselws.v2_1.vessel.Vessel;
 import se.havochvatten.vessel.proxy.cache.bean.VesselServiceBean;
+import se.havochvatten.vessel.proxy.cache.mapper.RequestMapper;
 
 @Path("vessel")
 @Stateless
@@ -42,6 +43,9 @@ public class VesselRestResource {
         LOG.info("Updating asset with ircs {}", ircs);
         try {
             Vessel vessel = vesselService.getVesselByIrcs(ircs);
+            if (vessel == null) {
+                vessel = RequestMapper.mapEuFormatToVessel(vesselService.getVesselEuFormatByIrcs(ircs));
+            }
             vesselService.enrichVesselAndSendToAsset(vessel);
             return Response.ok("OK").build();
         } catch (Exception e) {
@@ -56,6 +60,9 @@ public class VesselRestResource {
         LOG.info("Updating asset with ircs {}", cfr);
         try {
             Vessel vessel = vesselService.getVesselByCfr(cfr);
+            if (vessel == null) {
+                vessel = RequestMapper.mapEuFormatToVessel(vesselService.getVesselEuFormatByCfr(cfr));
+            }
             vesselService.enrichVesselAndSendToAsset(vessel);
             return Response.ok("OK").build();
         } catch (Exception e) {

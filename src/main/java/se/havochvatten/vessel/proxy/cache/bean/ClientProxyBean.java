@@ -55,6 +55,8 @@ import se.havochvatten.service.client.vesselws.v2_1.GetVesselByCFR;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselByCFRResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselByIRCS;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselByIRCSResponse;
+import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByCFR;
+import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByCFRResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByIRCS;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByIRCSResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselListByNation;
@@ -80,14 +82,29 @@ public class ClientProxyBean {
         request.setIrcs(ircs);
         return port.getVesselPortType().getVesselByIRCS(request);
     }
-    
+
+    public GetVesselEuFormatByIRCSResponse getVesselEuFormatByIrcs(String ircs) throws VesselException {
+        GetVesselEuFormatByIRCS request = new GetVesselEuFormatByIRCS();
+        request.setIrcs(ircs);
+        return port.getVesselPortType().getVesselEuFormatByIRCS(request);
+    }
+
     public GetVesselByCFRResponse getVesselByCfr(String cfr) throws VesselException {
         GetVesselByCFR request = new GetVesselByCFR();
         request.setCfr(cfr);
         return port.getVesselPortType().getVesselByCFR(request);
     }
 
+    public GetVesselEuFormatByCFRResponse getVesselEuFormatByCfr(String cfr) throws VesselException {
+        GetVesselEuFormatByCFR request = new GetVesselEuFormatByCFR();
+        request.setCfr(cfr);
+        return port.getVesselPortType().getVesselEuFormatByCFR(request);
+    }
+
     public GetVesselAndOwnerListByIdResponse getVesselAndOwnerListById(String id) {
+        if (id == null) {
+            return null;
+        }
         GetVesselAndOwnerListById getVesselAndOwnerListById = RequestMapper.mapToGetVesselAndOwnerListById(id);
         VesselCompPortType vesselCompServicePortType = port.getVesselCompServicePortType();
         GetVesselAndOwnerListByIdResponse response = null;

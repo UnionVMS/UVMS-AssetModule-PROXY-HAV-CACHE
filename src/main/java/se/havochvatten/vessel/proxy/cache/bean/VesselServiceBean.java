@@ -37,6 +37,7 @@ import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByIRCSRespo
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselListByNationResponse;
 import se.havochvatten.service.client.vesselws.v2_1.VesselException;
 import se.havochvatten.service.client.vesselws.v2_1.vessel.Vessel;
+import se.havochvatten.service.client.vesselws.v2_1.vessel.VesselEuFormatType;
 import se.havochvatten.vessel.proxy.cache.constant.ParameterKey;
 import se.havochvatten.vessel.proxy.cache.mapper.ResponseMapper;
 import se.havochvatten.vessel.proxy.cache.timer.PortServiceBean;
@@ -128,12 +129,30 @@ public class VesselServiceBean {
         }
     }
 
-    public Vessel getVesselByIrcs(String ircs) throws VesselException {
-        return client.getVesselByIrcs(ircs).getVessel();
+    public Vessel getVesselByIrcs(String ircs) {
+        try {
+            return client.getVesselByIrcs(ircs).getVessel();
+        } catch (VesselException e) {
+            LOG.error("Could not find vessel by ircs: {}", ircs);
+            return null;
+        }
     }
-    
+
+    public VesselEuFormatType getVesselEuFormatByIrcs(String ircs) throws VesselException {
+        return client.getVesselEuFormatByIrcs(ircs.toUpperCase()).getVesselEuFormat();
+    }
+
     public Vessel getVesselByCfr(String cfr) throws VesselException {
-        return client.getVesselByCfr(cfr).getVessel();
+        try {
+            return client.getVesselByCfr(cfr).getVessel();
+        } catch (VesselException e) {
+            LOG.error("Could not find vessel by cfr: {}", cfr);
+            return null;
+        }
+    }
+
+    public VesselEuFormatType getVesselEuFormatByCfr(String cfr) throws VesselException {
+        return client.getVesselEuFormatByCfr(cfr.toUpperCase()).getVesselEuFormat();
     }
 
     private void setGearTypeInformation(AssetDTO asset, GetGearChangeNotificationListByVesselIRCSResponse gearType) {

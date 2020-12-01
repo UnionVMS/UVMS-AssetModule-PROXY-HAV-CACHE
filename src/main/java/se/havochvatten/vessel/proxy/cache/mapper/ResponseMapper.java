@@ -155,7 +155,11 @@ public class ResponseMapper {
         assetContact.setType("Organization");
         assetContact.setEmail(organisationType.getEmail());
         assetContact.setName(organisationType.getOrganisationAdress().getOrgName());
-        assetContact.setPhoneNumber(organisationType.getPhone1()!=null ? organisationType.getPhone1().getTelephoneNumber() : null);
+        if (organisationType.getPhone1() != null && organisationType.getPhone1().getTelephoneNumber() != null) {
+            assetContact.setPhoneNumber(organisationType.getPhone1().getTelephoneNumber());
+        } else if (organisationType.getPhone2() != null && organisationType.getPhone2().getTelephoneNumber() != null) {
+            assetContact.setPhoneNumber(organisationType.getPhone2().getTelephoneNumber());
+        }
         assetContact.setStreetName(organisationType.getOrganisationAdress().getStreet());
         assetContact.setZipCode(organisationType.getOrganisationAdress().getZipcode() != null ? organisationType.getOrganisationAdress().getZipcode().toString() : null);
         assetContact.setCityName(organisationType.getOrganisationAdress().getCity());

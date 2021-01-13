@@ -51,6 +51,8 @@ import se.havochvatten.service.client.orgpersws.v1_3.OrgPersException;
 import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListById;
 import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListByIdResponse;
 import se.havochvatten.service.client.vesselcompws.v2_0.VesselCompPortType;
+import se.havochvatten.service.client.vesselws.v2_1.GetForeignVesselEuFormatByCFR;
+import se.havochvatten.service.client.vesselws.v2_1.GetForeignVesselEuFormatByCFRResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselByCFR;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselByCFRResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselByIRCS;
@@ -168,7 +170,19 @@ public class ClientProxyBean {
         }
         return response;
     }
-    
+
+    public GetForeignVesselEuFormatByCFRResponse getForeginVesselEuFormatByCfr(String cfr) {
+        GetForeignVesselEuFormatByCFR getForeignVesselParam = new GetForeignVesselEuFormatByCFR();
+        getForeignVesselParam.setCfr(cfr);
+        GetForeignVesselEuFormatByCFRResponse response = null;
+        try {
+            response = port.getVesselPortType().getForeignVesselEuFormatByCFR(getForeignVesselParam);
+        } catch (VesselException e) {
+            LOG.warn("Could not get vessel in eu format, cfr: {}, {}", cfr, e.getMessage());
+        }
+        return response;
+    }
+
     public List<PortInformationType> getPorts() throws GeographyException {
         return port.getGeographyPortType().getListPorts(Arrays.asList("SE"));
     }

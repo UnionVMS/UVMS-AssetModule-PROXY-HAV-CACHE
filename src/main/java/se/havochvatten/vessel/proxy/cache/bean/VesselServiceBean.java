@@ -33,6 +33,7 @@ import se.havochvatten.service.client.orgpersws.v1_3.GetPersonByCivicNrResponse;
 import se.havochvatten.service.client.orgpersws.v1_3.GetPersonsRepresentedByOrgResponse;
 import se.havochvatten.service.client.orgpersws.v1_3.RolePersonType;
 import se.havochvatten.service.client.vesselcompws.v2_0.GetVesselAndOwnerListByIdResponse;
+import se.havochvatten.service.client.vesselws.v2_1.GetForeignVesselEuFormatByCFRResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselEuFormatByIRCSResponse;
 import se.havochvatten.service.client.vesselws.v2_1.GetVesselListByNationResponse;
 import se.havochvatten.service.client.vesselws.v2_1.VesselException;
@@ -111,9 +112,16 @@ public class VesselServiceBean {
                 fishingLicence = getFishingLicenceByCFR(asset.getCfr());
             }
 
-            GetVesselEuFormatByIRCSResponse vesselEuFormat = client.getVesselEuFormatByIRCS(vessel.getIrcs());
-            if (vesselEuFormat != null) {
-                ResponseMapper.enrichAssetWithEuFormatInformation(asset, vesselEuFormat.getVesselEuFormat());
+            if (vessel.getIso3AlphaNation().equals("SWE")) {
+                GetVesselEuFormatByIRCSResponse vesselEuFormat = client.getVesselEuFormatByIRCS(vessel.getIrcs());
+                if (vesselEuFormat != null) {
+                    ResponseMapper.enrichAssetWithEuFormatInformation(asset, vesselEuFormat.getVesselEuFormat());
+                }
+            } else {
+                GetForeignVesselEuFormatByCFRResponse vesselEuFormat = client.getForeginVesselEuFormatByCfr(vessel.getCfr());
+                if (vesselEuFormat != null) {
+                    ResponseMapper.enrichAssetWithEuFormatInformation(asset, vesselEuFormat.getVesselEuFormat());
+                }
             }
             
             if (vessel.getIrcs() != null) {

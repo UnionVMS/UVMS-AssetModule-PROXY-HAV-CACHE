@@ -64,6 +64,14 @@ public class ResponseMapper {
             if (vesselEu.getIdentification() != null && vesselEu.getIdentification().getMmsi() != null) {
                 asset.setMmsi(vesselEu.getIdentification().getMmsi().toString());
             }
+            if(vesselEu.getRegistration().getPortName() != null) {
+                if(vesselEu.getRegistration().getPortCode() != null) {
+                    asset.setPortOfRegistration(vesselEu.getRegistration().getPortCode() + " " + 
+                            vesselEu.getRegistration().getPortName());  
+                }else {
+                    asset.setPortOfRegistration(vesselEu.getRegistration().getPortName());   
+                }
+            }
             if (vesselEu.getConstruction() != null) {
                 if (vesselEu.getConstruction().getYearOfConstruction() != null) {
                     asset.setConstructionYear(vesselEu.getConstruction().getYearOfConstruction().toString());

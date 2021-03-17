@@ -91,13 +91,13 @@ public class ResponseMapper {
     private static void enrichIdentificationType(AssetDTO asset, VesselEuFormatType vesselEu) {
         IdentificationType identification = vesselEu.getIdentification();
         if (identification != null) {
-            if (vesselEu.getIdentification().getMmsi() != null) {
+            if (identification.getMmsi() != null) {
                 asset.setMmsi(vesselEu.getIdentification().getMmsi().toString());
             }
-            if (vesselEu.getIdentification().getImo() != null) {
+            if (identification.getImo() != null) {
                 asset.setImo(vesselEu.getIdentification().getImo());
             }
-            if (vesselEu.getIdentification().getUvi() != null) {
+            if (identification.getUvi() != null) {
                 asset.setUvi(vesselEu.getIdentification().getUvi());
             }
         }
@@ -107,10 +107,10 @@ public class ResponseMapper {
         RegistrationType registration = vesselEu.getRegistration();
         if (registration != null) {
             if (asset.getPortOfRegistration() == null) {
-                if (vesselEu.getRegistration().getPortName() != null) {
-                    asset.setPortOfRegistration(vesselEu.getRegistration().getPortCode() + " " + vesselEu.getRegistration().getPortName());
+                if (registration.getPortName() != null) {
+                    asset.setPortOfRegistration(registration.getPortCode() + " " + registration.getPortName());
                 } else {
-                    asset.setPortOfRegistration(vesselEu.getRegistration().getPortCode());
+                    asset.setPortOfRegistration(registration.getPortCode());
                 }
             }
             if (registration.getDateOfEIS() != null) {

@@ -115,12 +115,12 @@ public class VesselServiceBean {
             if (vessel.getIso3AlphaNation().equals("SWE")) {
                 GetVesselEuFormatByIRCSResponse vesselEuFormat = client.getVesselEuFormatByIRCS(vessel.getIrcs());
                 if (vesselEuFormat != null) {
-                    ResponseMapper.enrichAssetWithEuFormatInformation(asset, vesselEuFormat.getVesselEuFormat());
+                    ResponseMapper.enrichWithEuFormatInformation(asset, contacts, vesselEuFormat.getVesselEuFormat());
                 }
             } else {
                 GetForeignVesselEuFormatByCFRResponse vesselEuFormat = client.getForeginVesselEuFormatByCfr(vessel.getCfr());
                 if (vesselEuFormat != null) {
-                    ResponseMapper.enrichAssetWithEuFormatInformation(asset, vesselEuFormat.getVesselEuFormat());
+                    ResponseMapper.enrichWithEuFormatInformation(asset, contacts, vesselEuFormat.getVesselEuFormat());
                 }
             }
             

@@ -92,6 +92,11 @@ public class VesselServiceBean {
             if (owners != null) {
                 ResponseMapper.enrichWithOrganisation(asset, owners.getOwner());
                 contacts = ResponseMapper.mapToContactInfo(owners.getOwner());
+                String ownerName = contacts.stream()
+                        .map(ContactInfo::getName)
+                        .sorted()
+                        .collect(Collectors.joining(", "));
+                asset.setOwnerName(ownerName);
             }
 
             if (asset.getProdOrgCode() != null) {

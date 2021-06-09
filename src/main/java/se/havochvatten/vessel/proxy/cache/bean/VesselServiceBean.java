@@ -87,23 +87,23 @@ public class VesselServiceBean {
                 asset.setPortOfRegistration(portOfRegistration);
             }
             
-            GetVesselAndOwnerListByIdResponse owners = client.getVesselAndOwnerListById(vessel.getVesselId());
             List<ContactInfo> contacts = new ArrayList<>();
-            if (owners != null) {
-                ResponseMapper.enrichWithOrganisation(asset, owners.getOwner());
-                contacts = ResponseMapper.mapToContactInfo(owners.getOwner());
-            }
+            if (asset.getFlagStateCode().equals("SWE")) {
+                GetVesselAndOwnerListByIdResponse owners = client.getVesselAndOwnerListById(vessel.getVesselId());
+                if (owners != null) {
+                    ResponseMapper.enrichWithOrganisation(asset, owners.getOwner());
+                    contacts = ResponseMapper.mapToContactInfo(owners.getOwner());
+                }
 
-            if (asset.getProdOrgCode() != null) {
-                GetPersonsRepresentedByOrgResponse personByOrg = client.getPersonByOrg(asset.getProdOrgCode());
-                if (personByOrg != null) {
-                    for (RolePersonType person : personByOrg.getRolePerson()) {
-                        contacts.add(ResponseMapper.mapToContactInfo(person));
+                if (asset.getProdOrgCode() != null) {
+                    GetPersonsRepresentedByOrgResponse personByOrg = client.getPersonByOrg(asset.getProdOrgCode());
+                    if (personByOrg != null) {
+                        for (RolePersonType person : personByOrg.getRolePerson()) {
+                            contacts.add(ResponseMapper.mapToContactInfo(person));
+                        }
                     }
                 }
-            }
 
-            if (asset.getFlagStateCode().equals("SWE")) {
                 contacts.addAll(getMastersBasedOnDeparturesLast30Days(asset.getIrcs()));
             }
 
@@ -124,7 +124,7 @@ public class VesselServiceBean {
                 }
             }
             
-            if (vessel.getIrcs() != null) {
+            if (asset.getFlagStateCode().equals("SWE") && vessel.getIrcs() != null) {
                 GetGearChangeNotificationListByVesselIRCSResponse gearType = client.getGearTypeByIRCS(vessel.getIrcs());
                 setGearTypeInformation(asset, gearType);
             }

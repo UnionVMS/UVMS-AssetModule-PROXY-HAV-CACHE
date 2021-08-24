@@ -70,5 +70,12 @@ public class VesselRestResource {
             return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ExceptionUtils.getRootCause(e)).build();
         }
     }
-    
+
+    @GET
+    @Path("inactivate")
+    public Response inactivateVessel() {
+        LOG.info("Inactivating vessels");
+        vesselService.inactivateVessels();
+        return Response.ok("OK").build();
+    }
 }

@@ -62,6 +62,19 @@ public class VesselServiceTimer {
         }
     }
 
+    @Schedule(hour = "5")
+    public void inactiveVessels() {
+        LOG.info("Inactivate vessel run!");
+        try {
+            long start = System.currentTimeMillis();
+            vesselServiceBean.inactivateVessels();
+            long tot = System.currentTimeMillis() - start;
+            LOG.info("--------------- Inactivate vessel total time {} s      -------------", tot / 1000);
+        } catch (Exception e) {
+            LOG.error("Something went wrong in when inactivating vessels", e);
+        }
+    }
+
     @PreDestroy
     public void destroy(){
         if(!executorService.isShutdown()){

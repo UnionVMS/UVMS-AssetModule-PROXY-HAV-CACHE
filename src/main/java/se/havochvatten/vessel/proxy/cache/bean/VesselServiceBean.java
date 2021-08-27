@@ -17,9 +17,13 @@ import javax.jms.JMSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import eu.europa.ec.fisheries.uvms.asset.client.AssetClient;
+import eu.europa.ec.fisheries.uvms.asset.client.model.AssetBO;
 import eu.europa.ec.fisheries.uvms.asset.client.model.AssetDTO;
 import eu.europa.ec.fisheries.uvms.asset.client.model.ContactInfo;
 import eu.europa.ec.fisheries.uvms.asset.client.model.FishingLicence;
+import eu.europa.ec.fisheries.uvms.asset.client.model.search.SearchBranch;
+import eu.europa.ec.fisheries.uvms.asset.client.model.search.SearchFields;
+import eu.europa.ec.fisheries.uvms.asset.client.model.search.SearchLeaf;
 import se.havochvatten.service.client.authlic_v2ws.v1_0.GetFishingLicenceByCFRResponse;
 import se.havochvatten.service.client.authlic_v2ws.v1_0.authlic.FishingLicenceType;
 import se.havochvatten.service.client.authlic_v2ws.v1_0.authlic.LimitationType;
@@ -252,5 +256,30 @@ public class VesselServiceBean {
             return fishingLicence;
         }
         return null;
+    }
+
+    public void inactivateVessels() {
+        SearchBranch query = new SearchBranch(true);
+        query.getFields().add(new SearchLeaf(SearchFields.FLAG_STATE, "SWE"));
+        query.getFields().add(new SearchLeaf(SearchFields.SOURCE, "NATIONAL"));
+        List<AssetDTO> assets = assetClient.getAssetList(query, 1, 10000);
+        LOG.info("assets: {}", assets.size());
+        List<Long> activeAssetIds = getVesselList("SWE")
+            .stream()
+            .map(vessel -> Long.parseLong(vessel.getVesselId()))
+            .collect(Collectors.toList());
+        LOG.info("#active: {}", activeAssetIds.size());
+        if (activeAssetIds.isEmpty()) {
+            return;
+        }
+        for (AssetDTO asset : assets) {
+            if (!activeAssetIds.contains(asset.getNationalId())) {
+                LOG.info("Inactivating vessel {} - {} ({})", asset.getId(), asset.getName(), asset.getIrcs());
+                asset.setActive(false);
+                AssetBO assetBO = new AssetBO();
+                assetBO.setAsset(asset);
+                assetClient.upsertAsset(assetBO);
+            }
+        }
     }
 }

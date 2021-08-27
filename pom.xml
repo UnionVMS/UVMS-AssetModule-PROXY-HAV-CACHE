@@ -105,7 +105,7 @@
     </dependencies>
 
     <scm>
-        <connection>scm:git:https://github.com/UnionVMS/UVMS-AssetModule-PROXY-HAV-CACHE.git</connection>
+        <connection>scm:git:git@github.com:UnionVMS/UVMS-AssetModule-PROXY-HAV-CACHE.git</connection>
         <tag>hav-vessel-proxy-cache-3.0.2</tag>
     </scm>
 
